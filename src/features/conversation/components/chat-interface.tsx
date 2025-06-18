@@ -94,7 +94,7 @@ function ChatInterface() {
   // 如果正在載入，顯示載入狀態
   if (isLoading) {
     return (
-      <div className="h-screen flex flex-col bg-background">
+      <div className="h-full flex flex-col bg-background">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -106,7 +106,7 @@ function ChatInterface() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background">
       {/* 頂部視角指示器 */}
       <ViewIndicator currentViewMode={currentViewMode} />
       
@@ -123,42 +123,94 @@ function ChatInterface() {
         />
         
         {/* 視角切換按鈕 */}
-        <div className="p-4 border-y flex justify-center items-center relative">
-          <ViewSwitchButton
-            currentViewMode={currentViewMode}
-            onSwitch={handleViewSwitch}
-            disabled={countdownActive || messages.length === 0}
-            isTransitioning={isTransitioning}
-          />
-          
-          {/* 右側按鈕組 */}
-          <div className="absolute right-4 flex items-center gap-2">
-            {/* 說明按鈕 */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={handleOpenWelcome}
-              disabled={countdownActive}
-            >
-              <HelpCircle className="h-4 w-4" />
-              說明
-            </Button>
+        <div className="p-4 border-y">
+          {/* 桌面版：水平排列，使用 justify-between 分佈 */}
+          <div className="hidden md:flex justify-between items-center">
+            {/* 左側佔位 */}
+            <div className="flex-1"></div>
             
-            {/* 匯出按鈕 */}
-            {messages.length > 0 && (
-              <ExportDialog>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                  disabled={countdownActive}
-                >
-                  <Download className="h-4 w-4" />
-                  匯出
-                </Button>
-              </ExportDialog>
-            )}
+            {/* 中間：視角切換按鈕 */}
+            <div className="flex justify-center">
+              <ViewSwitchButton
+                currentViewMode={currentViewMode}
+                onSwitch={handleViewSwitch}
+                disabled={countdownActive || messages.length === 0}
+                isTransitioning={isTransitioning}
+              />
+            </div>
+            
+            {/* 右側：功能按鈕組 */}
+            <div className="flex-1 flex justify-end items-center gap-2">
+              {/* 說明按鈕 */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={handleOpenWelcome}
+                disabled={countdownActive}
+              >
+                <HelpCircle className="h-4 w-4" />
+                說明
+              </Button>
+              
+              {/* 匯出按鈕 */}
+              {messages.length > 0 && (
+                <ExportDialog>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    disabled={countdownActive}
+                  >
+                    <Download className="h-4 w-4" />
+                    匯出
+                  </Button>
+                </ExportDialog>
+              )}
+            </div>
+          </div>
+
+          {/* 手機版：垂直排列，避免重疊 */}
+          <div className="md:hidden flex flex-col gap-3">
+            {/* 視角切換按鈕 */}
+            <div className="flex justify-center">
+              <ViewSwitchButton
+                currentViewMode={currentViewMode}
+                onSwitch={handleViewSwitch}
+                disabled={countdownActive || messages.length === 0}
+                isTransitioning={isTransitioning}
+              />
+            </div>
+            
+            {/* 功能按鈕組 */}
+            <div className="flex justify-center items-center gap-2">
+              {/* 說明按鈕 */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={handleOpenWelcome}
+                disabled={countdownActive}
+              >
+                <HelpCircle className="h-4 w-4" />
+                說明
+              </Button>
+              
+              {/* 匯出按鈕 */}
+              {messages.length > 0 && (
+                <ExportDialog>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    disabled={countdownActive}
+                  >
+                    <Download className="h-4 w-4" />
+                    匯出
+                  </Button>
+                </ExportDialog>
+              )}
+            </div>
           </div>
         </div>
         

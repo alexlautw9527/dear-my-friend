@@ -116,4 +116,31 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* iPhone Safari 滿版支援 */
+  html, body {
+    height: 100%;
+    /* 支援 dvh (dynamic viewport height) 的瀏覽器 */
+    height: 100dvh;
+    /* 防止滾動彈跳 */
+    overflow: hidden;
+    /* iOS Safari 特定修正 */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 確保根元素也是滿版 */
+  #root {
+    height: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 解決 iOS Safari 的 viewport 問題 */
+  @supports (-webkit-touch-callout: none) {
+    html, body, #root {
+      /* iOS Safari fallback */
+      min-height: -webkit-fill-available;
+    }
+  }
 }

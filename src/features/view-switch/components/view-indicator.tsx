@@ -38,6 +38,7 @@ function ViewIndicator({ currentViewMode, className }: ViewIndicatorProps) {
       <div
         className={cn(
           'flex items-center gap-3 px-4 py-2 rounded-lg border transition-all duration-200',
+          'flex-wrap sm:flex-nowrap justify-center',
           viewInfo.bgClass
         )}
       >
@@ -49,11 +50,11 @@ function ViewIndicator({ currentViewMode, className }: ViewIndicatorProps) {
           </Badge>
         </div>
 
-        {/* 分隔線 */}
-        <div className="w-px h-4 bg-border" />
+        {/* 分隔線 - 在手機版隱藏 */}
+        <div className="hidden sm:block w-px h-4 bg-border" />
 
-        {/* 說明文字 */}
-        <span className="text-sm text-muted-foreground">
+        {/* 說明文字 - 在手機版調整字體大小 */}
+        <span className="text-xs sm:text-sm text-muted-foreground text-center">
           {viewInfo.description}
         </span>
       </div>
