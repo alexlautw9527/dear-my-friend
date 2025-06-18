@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- 燈泡主體 -->
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z" fill="#fbbf24"/>
+  <!-- 燈泡底部螺紋 -->
+  <path d="M9 18h6v1H9v-1z" fill="#d97706"/>
+  <path d="M9 19h6v1H9v-1z" fill="#d97706"/>
+  <!-- 光芒效果 -->
+  <path d="M12 1v2M4.22 4.22l1.42 1.42M1 12h2M4.22 19.78l1.42-1.42M12 21v2M19.78 19.78l-1.42-1.42M21 12h2M19.78 4.22l-1.42 1.42" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+</svg> 
