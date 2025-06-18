@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- 風格請模仿 notion，簡潔、現代、優雅
+- 使用 shadcn 元件系統確保一致性
+- 響應式設計，適配各種螢幕尺寸
+- 直覺的視覺層次：清楚區分不同視角的訊息
+- 平滑動畫過渡：提升使用者體驗
+
+[index.css](mdc:src/index.css)

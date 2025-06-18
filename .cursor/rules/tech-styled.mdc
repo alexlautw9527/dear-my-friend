@@ -1,0 +1,22 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+## 技術規格
+
+- React, TypeScript, Vite
+- UI元件庫：shadcn
+- CSS：tailwind
+
+## Style
+
+- Export default 的主元件使用 function declaration，其餘可用 arrow function
+- 使用 features 來切分資料夾
+- 使用 barrel export
+- 檔名使用 kebab-case，元件使用大駝峰
+- 元件使用 type 來定義 prop type，命名規則為「MyComponentProps」
+- 使用 constant object + as const 取代 enum
+- 盡量遵守 container/ui pattern，將元件作為 pure function，side effect 集中處理
+- 盡量以 immutable 方式處理 array，例如 map、reduce
