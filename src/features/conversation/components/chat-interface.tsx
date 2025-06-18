@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageList, MessageInput } from '../../message';
 import { ViewSwitchButton, CountdownOverlay, ViewIndicator } from '../../view-switch';
 import { ExportDialog } from '../';
+import { WelcomeModal } from '../../welcome';
 import { useConversation, useViewMode, useCountdown } from '@/hooks';
 import { MESSAGE_ROLE } from '@/types';
-import { Download } from 'lucide-react';
+import { Download, HelpCircle } from 'lucide-react';
 
 function ChatInterface() {
   // 使用 Custom Hooks 管理狀態
@@ -38,6 +40,9 @@ function ChatInterface() {
       switchViewMode();
     },
   });
+
+  // Welcome Modal 狀態
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // 處理發送訊息
   const handleSendMessage = (content: string) => {
@@ -81,6 +86,11 @@ function ChatInterface() {
     deleteMessage(messageId);
   };
 
+  // 處理開啟說明
+  const handleOpenWelcome = () => {
+    setShowWelcomeModal(true);
+  };
+
   // 如果正在載入，顯示載入狀態
   if (isLoading) {
     return (
@@ -121,9 +131,22 @@ function ChatInterface() {
             isTransitioning={isTransitioning}
           />
           
-          {/* 匯出按鈕 */}
-          {messages.length > 0 && (
-            <div className="absolute right-4">
+          {/* 右側按鈕組 */}
+          <div className="absolute right-4 flex items-center gap-2">
+            {/* 說明按鈕 */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleOpenWelcome}
+              disabled={countdownActive}
+            >
+              <HelpCircle className="h-4 w-4" />
+              說明
+            </Button>
+            
+            {/* 匯出按鈕 */}
+            {messages.length > 0 && (
               <ExportDialog>
                 <Button
                   variant="outline"
@@ -135,8 +158,8 @@ function ChatInterface() {
                   匯出
                 </Button>
               </ExportDialog>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         
         {/* 訊息輸入 */}
@@ -152,6 +175,12 @@ function ChatInterface() {
         remainingTime={remainingTime}
         targetViewMode={getTargetViewMode()}
         onSkip={handleSkipCountdown}
+      />
+
+      {/* 歡迎引導 Modal */}
+      <WelcomeModal 
+        open={showWelcomeModal} 
+        onOpenChange={setShowWelcomeModal} 
       />
     </div>
   );
