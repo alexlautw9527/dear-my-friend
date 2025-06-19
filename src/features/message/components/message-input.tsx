@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 interface MessageInputProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   onSendMessage: (content: string) => void;
+  'data-guide'?: string;
 }
 
 const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
@@ -18,6 +19,7 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
     disabled = false,
     placeholder = UI_TEXT.MESSAGE_PLACEHOLDER,
     className,
+    'data-guide': dataGuide,
     ...props 
   }, ref) => {
     const [content, setContent] = useState('');
@@ -106,10 +108,13 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
     };
 
     return (
-      <div className={cn(
-        "flex gap-2 bg-background border-t border-border",
-        isMobile ? "p-3" : "p-4"
-      )}>
+      <div 
+        className={cn(
+          "flex gap-2 bg-background border-t border-border",
+          isMobile ? "p-3" : "p-4"
+        )}
+        data-guide={dataGuide}
+      >
         <div className="flex-1 relative">
           <Textarea
             autoComplete="off"

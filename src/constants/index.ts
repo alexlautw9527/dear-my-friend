@@ -7,7 +7,9 @@ export const COUNTDOWN = {
 // Local Storage keys
 export const STORAGE_KEYS = {
   CONVERSATION: 'dear-my-friend-conversation',
+  TUTORIAL_CONVERSATION: 'dear-my-friend-tutorial-conversation',
   VIEW_MODE: 'dear-my-friend-view-mode',
+  TUTORIAL_COMPLETED: 'dear-my-friend-tutorial-completed',
 } as const;
 
 // 動畫時間
@@ -29,4 +31,22 @@ export const UI_TEXT = {
   EDIT: '編輯',
   DELETE: '刪除',
   EXPORT: '匯出',
+} as const;
+
+// 教學相關常數
+export const TUTORIAL = {
+  STEP_DURATION: 1000, // 每個步驟之間的延遲 (ms)
+  DEMO_MESSAGES: {
+    APPRENTICE: '我在新專案中被指派為團隊負責人，但我從來沒有管理經驗，現在團隊成員都比我資深，我不知道該如何建立公信力，也擔心自己做不好會讓大家失望...',
+    MENTOR: '親愛的朋友，我能感受到你內心的焦慮和壓力，這種感覺很正常，每個人第一次承擔新責任時都會有這樣的擔憂。讓我陪你一起看看這個挑戰：首先，你被選為負責人一定有原因，公司看到了你的潛力。關於建立權威，其實真正的領導力不是來自職位，而是來自你的專業能力、同理心和為團隊服務的態度。不如我們先從了解每位團隊成員的強項開始，讓他們感受到你的重視，這樣既能學習他們的經驗，也能建立信任基礎。你覺得這個方向如何？',
+  },
+  STEP_TITLES: {
+    WELCOME: '歡迎使用 Dear My Friend',
+    APPRENTICE_DEMO: '學徒視角 - 表達困擾',
+    SWITCH_GUIDE: '視角切換 - 轉換思維',
+    MENTOR_INTRO: '導師視角 - 客觀分析',
+    MENTOR_DEMO: '導師回應 - 提供建議',
+    MENTOR_RESPONSE_REVIEW: '查看導師回應',
+    COMPLETE: '教學完成',
+  },
 } as const; 

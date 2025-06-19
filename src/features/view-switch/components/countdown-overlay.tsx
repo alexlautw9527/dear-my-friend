@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { SkipForward } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
@@ -108,10 +107,7 @@ function CountdownOverlay({
             </p>
           </div>
 
-          {/* 進度條 */}
-          <div className="mb-6">
-            <Progress value={progress} className="h-2" />
-          </div>
+
 
           {/* 跳過按鈕 */}
           <div className="flex justify-center">

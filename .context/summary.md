@@ -23,6 +23,7 @@
 - `STORAGE_KEYS`: Local Storage 鍵值
 - `ANIMATION`: 動畫時間設定
 - `UI_TEXT`: 介面文字常數
+- `TUTORIAL`: 教學系統相關設定 (步驟延遲、示範訊息、步驟標題)
 
 ### 2. Custom Hooks 狀態管理
 
@@ -34,6 +35,8 @@
 - 匯出功能 (Markdown/Text 格式)
 - 載入狀態管理
 - 錯誤處理機制
+- 教學模式與正常模式分離的對話記錄
+- 教學對話清除功能
 
 **useViewMode Hook** (`src/hooks/use-view-mode.ts`)
 
@@ -50,6 +53,15 @@
 - 進度百分比計算
 - 自動清理資源
 - 客製化回調支援
+
+**useTutorial Hook** (`src/hooks/use-tutorial.ts`)
+
+- 互動式教學流程管理
+- 教學步驟狀態控制
+- 示範訊息動態產生
+- 教學完成狀態持久化
+- 覆蓋層顯示狀態管理
+- 教學模式與正常模式切換
 
 ### 3. Message Feature 模組
 
@@ -97,6 +109,7 @@
 - 轉場動畫效果 (旋轉圖示)
 - 禁用狀態處理
 - 響應式文字顯示
+- 教學模式脈衝提示效果
 
 **CountdownOverlay 元件** (`src/features/view-switch/components/countdown-overlay.tsx`)
 
@@ -117,7 +130,7 @@
 
 **ChatInterface 主元件** (`src/features/conversation/components/chat-interface.tsx`)
 
-- 使用 Custom Hooks
+- 使用 Custom Hooks (包含 useTutorial)
 - 完整狀態管理分離
 - 視角切換邏輯
 - 倒數計時控制
@@ -126,8 +139,16 @@
 - 載入狀態顯示
 - 說明按鈕功能
   - 右上角說明按鈕
-  - WelcomeModal 狀態管理
-  - 倒數時禁用處理
+  - IntroductionModal 狀態管理
+  - 教學模式自動啟動
+- 互動式教學功能
+  - 教學流程控制
+  - 示範訊息自動發送
+  - 教學狀態同步
+  - 浮動提示按鈕
+- 清除對話功能
+  - 教學/正常對話分別清除
+  - 確認對話框保護
 
 **ExportDialog 元件** (`src/features/conversation/components/export-dialog.tsx`)
 
@@ -140,23 +161,40 @@
 
 ### 6. Welcome Feature 模組
 
-**WelcomeModal 元件** (`src/features/welcome/components/welcome-modal.tsx`)
+**IntroductionModal 元件** (`src/features/welcome/components/introduction-modal.tsx`)
 
-- 首次使用歡迎引導
-  - 自動檢測首次使用者
-  - Local Storage 「不再顯示」機制
-  - 控制模式與自動模式支援
-- 完整使用說明
+- 使用說明對話框
   - 學徒/導師視角概念介紹
   - 四步驟使用流程說明
   - 視覺化圖示與 Badge 標識
   - 響應式設計與現代化 UI
+- 互動式教學啟動
+  - 開始教學按鈕整合
+  - 教學功能入口
 - 說明按鈕整合
   - ChatInterface 右上角說明按鈕
-  - 隨時可重新檢視使用說明
+  - 隨時可檢視使用說明
   - 倒數時禁用防止誤操作
 
-### 7. 應用程式主要結構
+### 7. Tutorial Feature 模組
+
+**TutorialOverlay 元件** (`src/features/tutorial/components/tutorial-overlay.tsx`)
+
+- 互動式教學覆蓋層
+  - 七步驟教學流程
+  - 動態步驟標題與內容
+  - 示範訊息顯示
+  - 流暢的步驟轉換動畫
+- 教學控制功能
+  - 下一步/跳過按鈕
+  - 步驟進度指示
+  - 教學狀態管理
+- 視覺設計
+  - 模糊背景效果
+  - 現代化 UI 設計
+  - 響應式布局
+
+### 8. 應用程式主要結構
 
 **App 元件** (`src/App.tsx`)
 
@@ -177,20 +215,23 @@ App
     ├── ViewIndicator (視角指示器)
     ├── MessageList (訊息列表)
     │   └── MessageBubble[] (訊息氣泡 + 編輯功能)
-    ├── ViewSwitchButton (視角切換按鈕)
+    ├── ViewSwitchButton (視角切換按鈕 + 教學提示)
     ├── ExportDialog (匯出對話功能)
     ├── MessageInput (訊息輸入 + 手機優化)
     ├── CountdownOverlay (倒數覆蓋層)
-    └── WelcomeModal (歡迎引導)
+    ├── IntroductionModal (使用說明)
+    ├── TutorialOverlay (互動式教學)
+    └── 浮動教學按鈕 (教學模式中)
 ```
 
 **狀態管理流程:**
 
-1. **useConversation**: 管理所有對話訊息和 CRUD 操作
+1. **useConversation**: 管理所有對話訊息和 CRUD 操作 (包含教學/正常對話分離)
 2. **useViewMode**: 管理視角狀態和切換邏輯
 3. **useCountdown**: 管理倒數計時功能
-4. **Local Storage**: 自動持久化對話和視角狀態
-5. **錯誤處理**: 完整的載入和錯誤狀態管理
+4. **useTutorial**: 管理互動式教學流程和狀態
+5. **Local Storage**: 自動持久化對話、視角狀態和教學完成狀態
+6. **錯誤處理**: 完整的載入和錯誤狀態管理
 
 **核心互動流程:**
 
@@ -199,7 +240,9 @@ App
 3. 倒數完成 → 切換視角 → 更新 UI 狀態 → Local Storage 自動保存
 4. 訊息顯示位置根據當前視角動態調整
 5. 編輯訊息 → 行內編輯 UI → useConversation → Local Storage 自動保存
-6. 首次使用 → 自動顯示 WelcomeModal → 說明按鈕隨時開啟
+6. 首次使用 → 點擊說明按鈕 → 啟動互動式教學 → TutorialOverlay
+7. 教學流程 → 自動示範 → 使用者互動 → 完成教學 → 狀態持久化
+8. 教學完成後 → 說明按鈕顯示 IntroductionModal
 
 ## 對照任務清單的完成進度
 
@@ -226,14 +269,15 @@ App
 
 ### 階段三：狀態管理與核心邏輯 
 
-- [x] Custom Hooks 抽離 (useConversation, useViewMode, useCountdown)
-- [x] Local Storage 整合 (對話記錄和視角模式自動持久化)
+- [x] Custom Hooks 抽離 (useConversation, useViewMode, useCountdown, useTutorial)
+- [x] Local Storage 整合 (對話記錄、視角模式和教學狀態自動持久化)
 - [x] 頁面重新載入資料復原 (完整的狀態恢復機制)
 - [x] 基本狀態管理實作重構
 - [x] 視角切換核心邏輯優化
 - [x] 倒數計時邏輯增強
 - [x] 訊息 CRUD 完整功能
 - [x] 錯誤處理和載入狀態
+- [x] 教學模式與正常模式狀態分離
 
 ### 階段四：主要頁面組裝
 
@@ -250,6 +294,8 @@ App
 - [x] 基本鍵盤快捷鍵 (Enter 發送、Shift+Enter 換行、編輯快捷鍵)
 - [x] 歡迎引導功能 (首次使用引導、完整使用說明)
 - [x] 手機設備優化 (響應式輸入、觸控友善設計)
+- [x] 互動式教學系統 (七步驟引導、示範訊息、自動流程)
+- [x] 對話清除功能 (教學/正常對話分別清除、確認保護)
 
 ## 技術特色與優化
 
@@ -268,6 +314,8 @@ App
 - 鍵盤快捷鍵: 提升操作效率
 - 歡迎引導: 首次使用者友善引導
 - 手機優化: 觸控設備最佳化體驗
+- 互動式教學: 七步驟完整引導體驗
+- 智慧型介面: 教學完成後動態調整說明按鈕功能
 
 ### 3. 程式碼品質
 
@@ -285,6 +333,8 @@ App
 5. 匯出功能: 已實作多格式匯出功能
 6. 歡迎引導: 已新增完整的首次使用引導系統
 7. 手機優化: 已完成觸控設備友善設計
+8. 教學系統: 已實作完整的互動式教學流程
+9. 對話管理: 已新增教學/正常對話分離和清除功能
 
 ## 專案完成狀態
 
@@ -298,7 +348,8 @@ App
 - 對話匯出功能
 - 現代化 UI 設計
 - 響應式體驗
-- 歡迎引導系統
+- 互動式教學系統
+- 對話清除管理功能
 - 手機設備優化
 
 ### 技術實作完成度 - 100%
@@ -319,6 +370,6 @@ App
 
 ## 結論
 
-專案已成功完成所有核心和進階功能。透過 Custom Hooks 的重構，建立了清晰的狀態管理架構；完整的 Local Storage 整合確保了資料持久化；編輯和匯出功能提供了完整的使用者體驗；歡迎引導系統提升了新用戶體驗；手機設備優化確保了跨平台相容性。程式碼結構優雅、型別安全，具有出色的可維護性和擴展性。
+專案已成功完成所有核心和進階功能。透過 Custom Hooks 的重構，建立了清晰的狀態管理架構；完整的 Local Storage 整合確保了資料持久化；編輯和匯出功能提供了完整的使用者體驗；互動式教學系統提供了新用戶友善的學習體驗；對話清除功能讓使用者能夠靈活管理對話記錄；手機設備優化確保了跨平台相容性。程式碼結構優雅、型別安全，具有出色的可維護性和擴展性。
 
-這是一個功能完整、技術實作優秀、用戶體驗友善的 React 應用程式，已準備好進行生產部署。
+這是一個功能完整、技術實作優秀、用戶體驗友善的 React 應用程式，包含了創新的互動式教學系統，已準備好進行生產部署。

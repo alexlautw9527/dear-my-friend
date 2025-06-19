@@ -40,10 +40,39 @@ export type CountdownState = {
 // 導出類型
 export type ExportFormat = 'markdown' | 'text';
 
+// 教學步驟
+export const TUTORIAL_STEP = {
+  WELCOME: 0,
+  APPRENTICE_DEMO: 1,
+  SWITCH_GUIDE: 2,
+  MENTOR_INTRO: 3,
+  MENTOR_DEMO: 4,
+  MENTOR_RESPONSE_REVIEW: 5,
+  COMPLETE: 6,
+} as const;
+
+export type TutorialStep = typeof TUTORIAL_STEP[keyof typeof TUTORIAL_STEP];
+
+// 教學狀態
+export type TutorialState = {
+  isActive: boolean;
+  currentStep: TutorialStep;
+  isStepTransitioning: boolean;
+  canSkip: boolean;
+  isOverlayVisible: boolean;
+};
+
+// 教學示範訊息
+export type TutorialDemoMessages = {
+  apprentice: string;
+  mentor: string;
+};
+
 // 應用程式狀態
 export type AppState = {
   conversation: ConversationState;
   countdown: CountdownState;
+  tutorial: TutorialState;
   isLoading: boolean;
 };
 

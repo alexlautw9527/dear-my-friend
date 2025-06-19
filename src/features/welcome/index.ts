@@ -1,1 +1,1 @@
-export { default as WelcomeModal } from './components/welcome-modal'; 
+export { default as IntroductionModal } from './components/welcome-modal'; 

@@ -11,6 +11,7 @@ type ViewSwitchButtonProps = {
   disabled?: boolean;
   isTransitioning?: boolean;
   className?: string;
+  shouldPulse?: boolean;
 };
 
 function ViewSwitchButton({
@@ -19,6 +20,7 @@ function ViewSwitchButton({
   disabled = false,
   isTransitioning = false,
   className,
+  shouldPulse = false,
 }: ViewSwitchButtonProps) {
   const getButtonText = () => {
     return currentViewMode === VIEW_MODE.APPRENTICE
@@ -41,11 +43,13 @@ function ViewSwitchButton({
     <Button
       onClick={onSwitch}
       disabled={disabled || isTransitioning}
-      variant="outline"
+      variant={shouldPulse ? "default" : "outline"}
       size="sm"
       className={cn(
         'flex items-center gap-2 font-medium transition-all duration-200',
-        'hover:bg-primary hover:text-primary-foreground',
+        shouldPulse ? 
+          'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg animate-pulse' :
+          'hover:bg-primary hover:text-primary-foreground',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         className
       )}

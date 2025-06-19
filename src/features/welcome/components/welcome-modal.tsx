@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,62 +8,32 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, GraduationCap, MessageCircle, RefreshCw, Download, HelpCircle } from 'lucide-react';
+import { User, GraduationCap, RefreshCw, Download, HelpCircle, PlayCircle } from 'lucide-react';
 
-type WelcomeModalProps = {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+type IntroductionModalProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onStartTutorial?: () => void;
 };
 
-const DONT_SHOW_AGAIN_KEY = 'welcome-modal-dont-show';
-
-function WelcomeModal({ open: controlledOpen, onOpenChange }: WelcomeModalProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-
-  // 判斷是否為控制模式
-  const isControlled = controlledOpen !== undefined && onOpenChange !== undefined;
-  const isOpen = isControlled ? controlledOpen : internalOpen;
-
-  useEffect(() => {
-    const shouldShow = !localStorage.getItem(DONT_SHOW_AGAIN_KEY);
-    
-    if (isControlled && shouldShow && onOpenChange) {
-      // 控制模式下，如果是第一次使用，觸發外部控制器顯示 modal
-      onOpenChange(true);
-    } else if (!isControlled && shouldShow) {
-      // 非控制模式下，直接顯示 modal
-      setInternalOpen(true);
-    }
-  }, [isControlled, onOpenChange]);
-
-  const handleOpenChange = (open: boolean) => {
-    if (isControlled) {
-      onOpenChange!(open);
-    } else {
-      setInternalOpen(open);
-    }
-  };
-
-
-
-  const handleGetStarted = () => {
-    // 點擊「開始使用」後直接記錄到 localStorage
-    localStorage.setItem(DONT_SHOW_AGAIN_KEY, 'true');
-    handleOpenChange(false);
+function IntroductionModal({ open, onOpenChange, onStartTutorial }: IntroductionModalProps) {
+  const handleStartTutorial = () => {
+    onStartTutorial?.();
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[80vh] flex flex-col p-0">
         <DialogHeader className="text-center p-6 pb-4 flex-shrink-0">
           <DialogTitle className="text-2xl font-bold mb-2">
             <span className="flex items-center justify-center gap-2 mb-3">
-              <MessageCircle className="h-6 w-6 text-primary" />
-              歡迎使用 Dear My Friend
+              <HelpCircle className="h-6 w-6 text-primary" />
+              使用說明
             </span>
           </DialogTitle>
           <DialogDescription className="text-base leading-relaxed">
-            透過角色視角切換的對話介面，幫助您跳脫當局者迷的困境，啟動內在智慧解決問題
+            了解 Dear My Friend 的核心概念與使用方法
           </DialogDescription>
         </DialogHeader>
 
@@ -174,8 +143,16 @@ function WelcomeModal({ open: controlledOpen, onOpenChange }: WelcomeModalProps)
 
         <DialogFooter className="flex-col sm:flex-row gap-3 p-6 pt-4 flex-shrink-0">
           <div className="flex gap-2 ml-auto">
-            <Button onClick={handleGetStarted}>
-              開始使用
+            <Button 
+              variant="outline" 
+              onClick={handleStartTutorial}
+              className="flex items-center gap-2"
+            >
+              <PlayCircle className="h-4 w-4" />
+              教學模式
+            </Button>
+            <Button onClick={() => onOpenChange(false)}>
+              關閉
             </Button>
           </div>
         </DialogFooter>
@@ -184,4 +161,4 @@ function WelcomeModal({ open: controlledOpen, onOpenChange }: WelcomeModalProps)
   );
 }
 
-export default WelcomeModal; 
+export default IntroductionModal; 
