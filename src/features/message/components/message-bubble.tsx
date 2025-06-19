@@ -168,8 +168,13 @@ function MessageBubble({
             styling.cardClasses,
             'hover:shadow-md',
             message.isEditing && 'ring-2 ring-primary',
-            // 手機版可點擊提示
-            isMobile && !message.isEditing && 'cursor-pointer active:scale-[0.98]'
+            // 手機版互動提示 - 更優雅的方式
+            isMobile && !message.isEditing && [
+              'cursor-pointer active:scale-[0.98]',
+              'hover:ring-1 hover:ring-primary/20',
+              // 增加微妙的觸控回饋
+              'active:ring-2 active:ring-primary/30'
+            ]
           )}
           onClick={isMobile ? handleMobileToggleActions : undefined}
         >
@@ -217,11 +222,9 @@ function MessageBubble({
                 {message.content}
               </p>
               
-              {/* 手機版點擊提示 */}
+              {/* 手機版視覺提示 - 改用更微妙的設計 */}
               {isMobile && !showActions && (onEdit || onDelete) && (
-                <div className="absolute bottom-1 right-2 text-xs text-muted-foreground/50 pointer-events-none animate-pulse">
-                  輕觸編輯
-                </div>
+                <div className="absolute top-1 right-1 w-2 h-2 bg-primary/30 rounded-full opacity-60 animate-pulse pointer-events-none" />
               )}
             </>
           )}

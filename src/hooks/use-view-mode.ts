@@ -35,6 +35,14 @@ const useViewMode = () => {
     saveViewMode(newViewMode);
   }, [currentViewMode, saveViewMode]);
 
+  // 重置到學徒視角（當訊息數為 0 且為導師視角時使用）
+  const resetToApprentice = useCallback(() => {
+    if (currentViewMode === VIEW_MODE.MENTOR) {
+      setCurrentViewMode(VIEW_MODE.APPRENTICE);
+      saveViewMode(VIEW_MODE.APPRENTICE);
+    }
+  }, [currentViewMode, saveViewMode]);
+
   // 設置轉場狀態
   const setTransitioning = useCallback((transitioning: boolean) => {
     setIsTransitioning(transitioning);
@@ -60,6 +68,7 @@ const useViewMode = () => {
     currentViewMode,
     isTransitioning,
     switchViewMode,
+    resetToApprentice,
     setTransitioning,
     getTargetViewMode,
     getCurrentRoleLabel,

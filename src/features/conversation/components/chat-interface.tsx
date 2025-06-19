@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageList, MessageInput } from '../../message';
@@ -25,6 +25,7 @@ function ChatInterface() {
     currentViewMode,
     isTransitioning,
     switchViewMode,
+    resetToApprentice,
     setTransitioning,
     getTargetViewMode,
   } = useViewMode();
@@ -43,6 +44,13 @@ function ChatInterface() {
 
   // Welcome Modal 狀態
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  // 監聽訊息數量變化，當訊息數為 0 且為導師視角時，自動切回學徒視角
+  useEffect(() => {
+    if (messages.length === 0 && currentViewMode === 'mentor' && !isTransitioning) {
+      resetToApprentice();
+    }
+  }, [messages.length, currentViewMode, isTransitioning, resetToApprentice]);
 
   // 處理發送訊息
   const handleSendMessage = (content: string) => {
