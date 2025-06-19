@@ -221,11 +221,6 @@ function MessageBubble({
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {message.content}
               </p>
-              
-              {/* 手機版視覺提示 - 改用更微妙的設計 */}
-              {isMobile && !showActions && (onEdit || onDelete) && (
-                <div className="absolute top-1 right-1 w-2 h-2 bg-primary/30 rounded-full opacity-60 animate-pulse pointer-events-none" />
-              )}
             </>
           )}
 
