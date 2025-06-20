@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,16 +24,20 @@ function ExportDialog({ children }: ExportDialogProps) {
   const [isCopied, setIsCopied] = useState(false);
   const { exportMessages } = useConversation();
 
+  // 使用 useMemo 確保內容只在格式變更時重新計算
+  // 移除 messages 依賴，因為 exportMessages 內部已經會取得最新的訊息
+  const exportContent = useMemo(() => {
+    return exportMessages(selectedFormat);
+  }, [exportMessages, selectedFormat]);
+
   const handleExport = () => {
-    const content = exportMessages(selectedFormat);
-    
-    if (!content) {
+    if (!exportContent) {
       return;
     }
 
     // 創建並下載檔案
     const filename = `dear-my-friend-${new Date().toISOString().split('T')[0]}.${selectedFormat === 'markdown' ? 'md' : 'txt'}`;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
@@ -48,14 +52,12 @@ function ExportDialog({ children }: ExportDialogProps) {
   };
 
   const handleCopyToClipboard = async () => {
-    const content = exportMessages(selectedFormat);
-    
-    if (!content) {
+    if (!exportContent) {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(exportContent);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
@@ -63,15 +65,15 @@ function ExportDialog({ children }: ExportDialogProps) {
     }
   };
 
-  const previewContent = () => {
-    const content = exportMessages(selectedFormat);
-    if (!content) {
+  // 使用 useMemo 計算預覽內容，顯示完整內容以支援滾動
+  const previewContent = useMemo(() => {
+    if (!exportContent) {
       return '沒有對話記錄可匯出';
     }
     
-    // 只顯示前300字符作為預覽
-    return content.length > 300 ? content.substring(0, 300) + '...' : content;
-  };
+    // 直接返回完整內容，讓使用者可以滾動查看
+    return exportContent;
+  }, [exportContent]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -79,7 +81,7 @@ function ExportDialog({ children }: ExportDialogProps) {
         {children}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-        <DialogHeader>
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Download className="h-5 w-5" />
             匯出對話記錄
@@ -89,9 +91,9 @@ function ExportDialog({ children }: ExportDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 space-y-4 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 overflow-hidden">
           {/* 格式選擇 */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-shrink-0">
             <label className="text-sm font-medium">匯出格式</label>
             <div className="flex gap-2">
               <Button
@@ -116,17 +118,17 @@ function ExportDialog({ children }: ExportDialogProps) {
           </div>
 
           {/* 預覽 */}
-          <div className="space-y-2 flex-1 flex flex-col">
-            <label className="text-sm font-medium">預覽</label>
-            <div className="flex-1 border rounded-md p-3 bg-muted overflow-y-auto">
-              <pre className="text-xs whitespace-pre-wrap font-mono">
-                {previewContent()}
+          <div className="flex-1 flex flex-col gap-2 min-h-0">
+            <label className="text-sm font-medium flex-shrink-0">預覽</label>
+            <div className="flex-1 border rounded-md bg-muted overflow-auto p-3 min-h-0">
+              <pre className="text-xs whitespace-pre-wrap font-mono break-words">
+                {previewContent}
               </pre>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex gap-2">
+        <DialogFooter className="flex gap-2 flex-shrink-0">
           <Button
             variant="outline"
             onClick={handleCopyToClipboard}
