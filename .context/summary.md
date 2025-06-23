@@ -25,9 +25,11 @@
 - `UI_TEXT`: 介面文字常數
 - `TUTORIAL`: 教學系統相關設定 (步驟延遲、示範訊息、步驟標題)
 
-### 2. Custom Hooks 狀態管理
+### 2. 狀態管理架構 - Zustand Store 重構
 
-**useConversation Hook** (`src/hooks/use-conversation.ts`)
+**專案已從 Custom Hooks 完全遷移到 Zustand 狀態管理**
+
+**Conversation Store** (`src/store/conversation-store.ts`)
 
 - 對話訊息狀態管理
 - Local Storage 自動持久化
@@ -38,7 +40,7 @@
 - 教學模式與正常模式分離的對話記錄
 - 教學對話清除功能
 
-**useViewMode Hook** (`src/hooks/use-view-mode.ts`)
+**View Mode Store** (`src/store/view-mode-store.ts`)
 
 - 視角模式狀態管理
 - Local Storage 持久化
@@ -46,7 +48,7 @@
 - 轉場狀態控制
 - 角色標籤工具函數
 
-**useCountdown Hook** (`src/hooks/use-countdown.ts`)
+**Countdown Store** (`src/store/countdown-store.ts`)
 
 - 高精度倒數計時功能
 - 暫停/恢復/跳過功能
@@ -54,7 +56,7 @@
 - 自動清理資源
 - 客製化回調支援
 
-**useTutorial Hook** (`src/hooks/use-tutorial.ts`)
+**Tutorial Store** (`src/store/tutorial-store.ts`)
 
 - 互動式教學流程管理
 - 教學步驟狀態控制
@@ -62,6 +64,19 @@
 - 教學完成狀態持久化
 - 覆蓋層顯示狀態管理
 - 教學模式與正常模式切換
+
+**UI Store** (`src/store/ui-store.ts`)
+
+- Modal 顯示狀態管理
+- 教學分析按鈕狀態
+- 其他 UI 相關狀態
+
+**App State Hook** (`src/store/use-app-state.ts`)
+
+- 組合所有 Zustand stores
+- 統一的狀態介面
+- 自動狀態同步
+- 初始化管理
 
 ### 3. Message Feature 模組
 
@@ -130,7 +145,7 @@
 
 **ChatInterface 主元件** (`src/features/conversation/components/chat-interface.tsx`)
 
-- 使用 Custom Hooks (包含 useTutorial)
+- 使用 Zustand Store 統一狀態管理 (useAppState)
 - 完整狀態管理分離
 - 視角切換邏輯
 - 倒數計時控制
@@ -156,8 +171,9 @@
 - 支援 Markdown 和純文字格式
 - 檔案下載功能
 - 剪貼簿複製功能
-- 匯出預覽
+- 匯出預覽 (已修復與聊天界面同步問題)
 - 現代化 UI 設計
+- 使用 Zustand ConversationStore
 
 ### 6. Welcome Feature 模組
 
@@ -224,25 +240,28 @@ App
     └── 浮動教學按鈕 (教學模式中)
 ```
 
-**狀態管理流程:**
+**狀態管理流程 (Zustand Stores):**
 
-1. **useConversation**: 管理所有對話訊息和 CRUD 操作 (包含教學/正常對話分離)
-2. **useViewMode**: 管理視角狀態和切換邏輯
-3. **useCountdown**: 管理倒數計時功能
-4. **useTutorial**: 管理互動式教學流程和狀態
-5. **Local Storage**: 自動持久化對話、視角狀態和教學完成狀態
-6. **錯誤處理**: 完整的載入和錯誤狀態管理
+1. **ConversationStore**: 管理所有對話訊息和 CRUD 操作 (包含教學/正常對話分離)
+2. **ViewModeStore**: 管理視角狀態和切換邏輯
+3. **CountdownStore**: 管理倒數計時功能
+4. **TutorialStore**: 管理互動式教學流程和狀態
+5. **UIStore**: 管理 UI 相關狀態 (Modal、按鈕等)
+6. **useAppState**: 組合所有 stores 並提供統一介面
+7. **Local Storage**: 自動持久化對話、視角狀態和教學完成狀態
+8. **錯誤處理**: 完整的載入和錯誤狀態管理
 
 **核心互動流程:**
 
-1. 使用者輸入訊息 → MessageInput → ChatInterface → useConversation
-2. 點擊視角切換 → useCountdown → CountdownOverlay → useViewMode
+1. 使用者輸入訊息 → MessageInput → ChatInterface → ConversationStore
+2. 點擊視角切換 → CountdownStore → CountdownOverlay → ViewModeStore
 3. 倒數完成 → 切換視角 → 更新 UI 狀態 → Local Storage 自動保存
 4. 訊息顯示位置根據當前視角動態調整
-5. 編輯訊息 → 行內編輯 UI → useConversation → Local Storage 自動保存
+5. 編輯訊息 → 行內編輯 UI → ConversationStore → Local Storage 自動保存
 6. 首次使用 → 點擊說明按鈕 → 啟動互動式教學 → TutorialOverlay
 7. 教學流程 → 自動示範 → 使用者互動 → 完成教學 → 狀態持久化
 8. 教學完成後 → 說明按鈕顯示 IntroductionModal
+9. 匯出對話 → ExportDialog → ConversationStore → 即時同步預覽
 
 ## 對照任務清單的完成進度
 
@@ -270,6 +289,9 @@ App
 ### 階段三：狀態管理與核心邏輯 
 
 - [x] Custom Hooks 抽離 (useConversation, useViewMode, useCountdown, useTutorial)
+- [x] Zustand 狀態管理重構 (ConversationStore, ViewModeStore, CountdownStore, TutorialStore, UIStore)
+- [x] 模組化 Store 設計 (拆分成獨立的功能性 stores)
+- [x] 組合式狀態管理 (useAppState 統一介面)
 - [x] Local Storage 整合 (對話記錄、視角模式和教學狀態自動持久化)
 - [x] 頁面重新載入資料復原 (完整的狀態恢復機制)
 - [x] 基本狀態管理實作重構
@@ -289,6 +311,7 @@ App
 
 - [x] 訊息編輯功能 (完整的行內編輯 UI 和邏輯)
 - [x] 匯出功能 (支援 Markdown/Text 格式，檔案下載和剪貼簿)
+- [x] 匯出預覽同步修復 (解決預覽內容與聊天界面不同步問題)
 - [x] 訊息刪除功能
 - [x] 基本動畫效果 (視角切換、hover 效果)
 - [x] 基本鍵盤快捷鍵 (Enter 發送、Shift+Enter 換行、編輯快捷鍵)
@@ -301,10 +324,14 @@ App
 
 ### 1. 狀態管理架構
 
-- Custom Hooks 分離: 清晰的關注點分離
-- Local Storage 整合: 自動資料持久化
-- 錯誤處理: 完整的邊界情況處理
-- 效能優化: 使用 useCallback 避免不必要重渲染
+- **Zustand Store 重構**: 從 Custom Hooks 完全遷移到 Zustand
+- **模組化設計**: 5個獨立的功能性 stores (Conversation, ViewMode, Countdown, Tutorial, UI)
+- **組合式架構**: useAppState 提供統一的狀態介面
+- **類型安全**: 完整的 TypeScript 支援和類型定義
+- **狀態同步**: 自動處理 stores 之間的狀態變化
+- **Local Storage 整合**: 自動資料持久化
+- **錯誤處理**: 完整的邊界情況處理
+- **效能優化**: Zustand 的內建優化和選擇性訂閱
 
 ### 2. 使用者體驗提升
 

@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Download, FileText, Copy, Check } from 'lucide-react';
-import { useConversation } from '@/hooks';
+import { useConversationStore } from '@/store';
 
 type ExportFormat = 'markdown' | 'text';
 
@@ -22,13 +22,13 @@ function ExportDialog({ children }: ExportDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('markdown');
   const [isCopied, setIsCopied] = useState(false);
-  const { exportMessages } = useConversation();
+  const { exportMessages, messages, tutorialMessages, isTutorialMode } = useConversationStore();
 
-  // 使用 useMemo 確保內容只在格式變更時重新計算
-  // 移除 messages 依賴，因為 exportMessages 內部已經會取得最新的訊息
+  // 使用 useMemo 確保內容在格式變更或訊息更新時重新計算
+  // 添加 messages 相關依賴確保與最新聊天界面同步
   const exportContent = useMemo(() => {
     return exportMessages(selectedFormat);
-  }, [exportMessages, selectedFormat]);
+  }, [exportMessages, selectedFormat, messages, tutorialMessages, isTutorialMode]);
 
   const handleExport = () => {
     if (!exportContent) {
