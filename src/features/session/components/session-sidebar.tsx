@@ -1,14 +1,16 @@
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { UI_TEXT } from '@/constants';
 import { useAppState } from '@/store/use-app-state';
 import SessionItem from './session-item';
 
 interface SessionSidebarProps {
   className?: string;
+  onClose?: () => void;
+  showCloseButton?: boolean;
 }
 
-function SessionSidebar({ className = '' }: SessionSidebarProps) {
+function SessionSidebar({ className = '', onClose, showCloseButton = false }: SessionSidebarProps) {
   const {
     sessions,
     currentSessionId,
@@ -43,19 +45,19 @@ function SessionSidebar({ className = '' }: SessionSidebarProps) {
 
   return (
     <div className={`flex flex-col h-full bg-background border-r ${className}`}>
-      {/* 標題和新增按鈕 */}
+      {/* 標題 */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{UI_TEXT.SESSION_LIST}</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCreateSession}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-3 w-3" />
-            {UI_TEXT.NEW_SESSION}
-          </Button>
+          {showCloseButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -75,11 +77,17 @@ function SessionSidebar({ className = '' }: SessionSidebarProps) {
         </div>
       </div>
 
-      {/* 底部資訊（可選） */}
-      <div className="p-4 border-t text-center">
-        <p className="text-xs text-muted-foreground">
-          共 {sessions.length} 個對話
-        </p>
+      {/* 新增對話按鈕 */}
+      <div className="p-4 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCreateSession}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          {UI_TEXT.NEW_SESSION}
+        </Button>
       </div>
     </div>
   );

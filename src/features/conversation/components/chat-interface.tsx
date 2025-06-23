@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageList, MessageInput } from '../../message';
@@ -9,11 +9,28 @@ import { TutorialOverlay } from '../../tutorial';
 import { SessionSidebar } from '../../session';
 import { useAppState } from '@/store/use-app-state';
 import { MESSAGE_ROLE, TUTORIAL_STEP } from '@/types';
-import { Download, HelpCircle, Trash2, GraduationCap, Menu, X } from 'lucide-react';
+import { Download, HelpCircle, Trash2, GraduationCap, Menu } from 'lucide-react';
 
 function ChatInterface() {
   // 側邊欄狀態（手機版）
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // 處理 Escape 鍵關閉側邊欄
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isSidebarOpen]);
 
   // 使用組合的應用狀態 hook
   const {
@@ -310,15 +327,10 @@ function ChatInterface() {
           />
           {/* 側邊欄 */}
           <div className="relative w-80 h-full bg-background border-r shadow-lg">
-            <SessionSidebar />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-4 right-4"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <SessionSidebar 
+              onClose={() => setIsSidebarOpen(false)}
+              showCloseButton={true}
+            />
           </div>
         </div>
       )}
