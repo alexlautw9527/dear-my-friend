@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageList, MessageInput } from '../../message';
@@ -6,11 +6,15 @@ import { ViewSwitchButton, CountdownOverlay, ViewIndicator } from '../../view-sw
 import { ExportDialog } from '../';
 import { IntroductionModal } from '../../welcome';
 import { TutorialOverlay } from '../../tutorial';
+import { SessionSidebar } from '../../session';
 import { useAppState } from '@/store/use-app-state';
 import { MESSAGE_ROLE, TUTORIAL_STEP } from '@/types';
-import { Download, HelpCircle, Trash2, GraduationCap } from 'lucide-react';
+import { Download, HelpCircle, Trash2, GraduationCap, Menu, X } from 'lucide-react';
 
 function ChatInterface() {
+  // 側邊欄狀態（手機版）
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // 使用組合的應用狀態 hook
   const {
     // 狀態
@@ -290,12 +294,56 @@ function ChatInterface() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* 頂部視角指示器 */}
-      <ViewIndicator currentViewMode={currentViewMode} />
-      
-      {/* 主要聊天區域 */}
-      <Card className="flex-1 flex flex-col mx-4 mb-4 overflow-hidden pt-4">
+    <div className="h-full flex bg-background">
+      {/* 桌面版側邊欄 */}
+      <div className="hidden md:block w-80 border-r">
+        <SessionSidebar />
+      </div>
+
+      {/* 手機版側邊欄覆蓋層 */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* 背景遮罩 */}
+          <div 
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          {/* 側邊欄 */}
+          <div className="relative w-80 h-full bg-background border-r shadow-lg">
+            <SessionSidebar />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 主要內容區域 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 頂部區域：手機版選單按鈕 + 視角指示器 */}
+        <div className="flex items-center gap-2 p-2 md:p-0">
+          {/* 手機版選單按鈕 */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+          {/* 視角指示器 */}
+          <div className="flex-1">
+            <ViewIndicator currentViewMode={currentViewMode} />
+          </div>
+        </div>
+        
+        {/* 主要聊天區域 */}
+        <Card className="flex-1 flex flex-col mx-4 mb-4 overflow-hidden pt-4">
         {/* 訊息列表 */}
         <MessageList
           messages={messages}
@@ -452,7 +500,8 @@ function ChatInterface() {
             (tutorialState.isActive && tutorialState.currentStep !== TUTORIAL_STEP.SWITCH_GUIDE && tutorialState.currentStep !== TUTORIAL_STEP.COMPLETE)
           }
         />
-      </Card>
+        </Card>
+      </div>
 
       {/* 倒數覆蓋層 */}
       <CountdownOverlay

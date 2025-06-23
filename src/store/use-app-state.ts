@@ -4,12 +4,28 @@ import {
   useViewModeStore, 
   useCountdownStore, 
   useTutorialStore, 
-  useUIStore 
+  useUIStore,
+  useSessionStore
 } from './index';
 import { VIEW_MODE } from '@/types';
+import type { MessageRole } from '@/types';
 
 // 組合所有store的狀態和操作
 export const useAppState = () => {
+  // 會話管理相關
+  const sessionStore = useSessionStore();
+  const {
+    sessions,
+    currentSessionId,
+    isLoading: sessionLoading,
+    createSession,
+    deleteSession,
+    renameSession,
+    switchToSession,
+    getCurrentSession,
+    updateSessionMessages,
+  } = sessionStore;
+
   // 對話相關
   const conversationStore = useConversationStore();
   const { 
@@ -17,20 +33,83 @@ export const useAppState = () => {
     tutorialMessages,
     isLoading, 
     isTutorialMode,
-    sendMessage,
-    editMessage,
+    sendMessage: originalSendMessage,
+    editMessage: originalEditMessage,
     startEditMessage,
     cancelEditMessage,
-    deleteMessage,
-    clearMessages,
-    clearTutorialMessages,
+    deleteMessage: originalDeleteMessage,
+    clearMessages: originalClearMessages,
+    clearTutorialMessages: originalClearTutorialMessages,
     switchToTutorialMode,
     switchToNormalMode,
     exportMessages,
+    loadSessionMessages,
+    getMessagesForSession,
   } = conversationStore;
 
   // 根據模式選擇正確的訊息數組
   const messages = isTutorialMode ? tutorialMessages : normalMessages;
+
+  // 包裝的訊息操作，會同步更新到會話
+  const sendMessage = (content: string, role: MessageRole) => {
+    originalSendMessage(content, role);
+    // 操作完成後，同步更新會話
+    setTimeout(() => {
+      const currentSession = getCurrentSession();
+      if (currentSession) {
+        const { messages, tutorialMessages } = getMessagesForSession();
+        updateSessionMessages(currentSession.id, messages, tutorialMessages);
+      }
+    }, 0);
+  };
+
+  const editMessage = (messageId: string, newContent: string) => {
+    originalEditMessage(messageId, newContent);
+    // 操作完成後，同步更新會話
+    setTimeout(() => {
+      const currentSession = getCurrentSession();
+      if (currentSession) {
+        const { messages, tutorialMessages } = getMessagesForSession();
+        updateSessionMessages(currentSession.id, messages, tutorialMessages);
+      }
+    }, 0);
+  };
+
+  const deleteMessage = (messageId: string) => {
+    originalDeleteMessage(messageId);
+    // 操作完成後，同步更新會話
+    setTimeout(() => {
+      const currentSession = getCurrentSession();
+      if (currentSession) {
+        const { messages, tutorialMessages } = getMessagesForSession();
+        updateSessionMessages(currentSession.id, messages, tutorialMessages);
+      }
+    }, 0);
+  };
+
+  const clearMessages = () => {
+    originalClearMessages();
+    // 操作完成後，同步更新會話
+    setTimeout(() => {
+      const currentSession = getCurrentSession();
+      if (currentSession) {
+        const { messages, tutorialMessages } = getMessagesForSession();
+        updateSessionMessages(currentSession.id, messages, tutorialMessages);
+      }
+    }, 0);
+  };
+
+  const clearTutorialMessages = () => {
+    originalClearTutorialMessages();
+    // 操作完成後，同步更新會話
+    setTimeout(() => {
+      const currentSession = getCurrentSession();
+      if (currentSession) {
+        const { messages, tutorialMessages } = getMessagesForSession();
+        updateSessionMessages(currentSession.id, messages, tutorialMessages);
+      }
+    }, 0);
+  };
 
   // 視角模式相關
   const viewModeStore = useViewModeStore();
@@ -89,7 +168,9 @@ export const useAppState = () => {
   // 初始化應用
   useEffect(() => {
     const initialize = async () => {
-      // 初始化各個store
+      // 先初始化會話管理
+      await sessionStore.initialize();
+      // 再初始化其他store
       await conversationStore.initialize();
       viewModeStore.initialize();
       tutorialStore.initialize();
@@ -97,6 +178,14 @@ export const useAppState = () => {
     
     initialize();
   }, []);
+
+  // 監聽當前會話變化，載入對應的訊息
+  useEffect(() => {
+    const currentSession = getCurrentSession();
+    if (currentSession && !sessionLoading) {
+      loadSessionMessages(currentSession.messages, currentSession.tutorialMessages);
+    }
+  }, [currentSessionId, sessionLoading]);
 
   // 監聽訊息數量變化，當訊息數為 0 且為導師視角時，自動切回學徒視角
   // 但在教學模式中不執行此邏輯
@@ -125,7 +214,7 @@ export const useAppState = () => {
   return {
     // 狀態
     messages,
-    isLoading,
+    isLoading: isLoading || sessionLoading,
     isTutorialMode,
     currentViewMode,
     isTransitioning,
@@ -134,6 +223,11 @@ export const useAppState = () => {
     tutorialState,
     showIntroductionModal,
     showTutorialAnalysisButton,
+    
+    // 會話管理狀態
+    sessions,
+    currentSessionId,
+    getCurrentSession,
     
     // 對話操作
     sendMessage,
@@ -181,5 +275,11 @@ export const useAppState = () => {
     // UI 操作
     setShowIntroductionModal,
     setShowTutorialAnalysisButton,
+    
+    // 會話管理操作
+    createSession,
+    deleteSession,
+    renameSession,
+    switchToSession,
   };
 };

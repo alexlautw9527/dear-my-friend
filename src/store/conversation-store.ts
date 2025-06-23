@@ -1,10 +1,9 @@
 import { create } from 'zustand';
 import type { Message, MessageRole } from '@/types';
 import { MESSAGE_ROLE } from '@/types';
-import { STORAGE_KEYS } from '@/constants';
 
 interface ConversationState {
-  // 狀態
+  // 狀態 (保持原有介面以確保兼容性)
   messages: Message[];
   tutorialMessages: Message[];
   isTutorialMode: boolean;
@@ -22,26 +21,12 @@ interface ConversationState {
   switchToNormalMode: () => void;
   exportMessages: (format?: 'markdown' | 'text') => string;
   initialize: () => Promise<void>;
+  
+  // 新增：支援多會話的方法
+  loadSessionMessages: (messages: Message[], tutorialMessages: Message[]) => void;
+  getMessagesForSession: () => { messages: Message[], tutorialMessages: Message[] };
 }
 
-// 儲存和載入函數
-const saveToStorage = (key: string, data: any) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (error) {
-    console.error(`儲存 ${key} 失敗:`, error);
-  }
-};
-
-const loadFromStorage = <T>(key: string, defaultValue: T): T => {
-  try {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultValue;
-  } catch (error) {
-    console.error(`載入 ${key} 失敗:`, error);
-    return defaultValue;
-  }
-};
 
 export const useConversationStore = create<ConversationState>((set, get) => ({
   // 初始狀態
@@ -50,7 +35,7 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   isTutorialMode: false,
   isLoading: true,
 
-  // 發送訊息
+  // 發送訊息（不再直接儲存到 localStorage，改為返回新的訊息陣列供 session store 處理）
   sendMessage: (content: string, role: MessageRole) => {
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -63,11 +48,9 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     if (state.isTutorialMode) {
       const updatedMessages = [...state.tutorialMessages, newMessage];
       set({ tutorialMessages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.TUTORIAL_CONVERSATION, updatedMessages);
     } else {
       const updatedMessages = [...state.messages, newMessage];
       set({ messages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.CONVERSATION, updatedMessages);
     }
   },
 
@@ -83,10 +66,8 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     
     if (state.isTutorialMode) {
       set({ tutorialMessages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.TUTORIAL_CONVERSATION, updatedMessages);
     } else {
       set({ messages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.CONVERSATION, updatedMessages);
     }
   },
 
@@ -130,10 +111,8 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     
     if (state.isTutorialMode) {
       set({ tutorialMessages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.TUTORIAL_CONVERSATION, updatedMessages);
     } else {
       set({ messages: updatedMessages });
-      saveToStorage(STORAGE_KEYS.CONVERSATION, updatedMessages);
     }
   },
 
@@ -142,17 +121,14 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     const state = get();
     if (state.isTutorialMode) {
       set({ tutorialMessages: [] });
-      saveToStorage(STORAGE_KEYS.TUTORIAL_CONVERSATION, []);
     } else {
       set({ messages: [] });
-      saveToStorage(STORAGE_KEYS.CONVERSATION, []);
     }
   },
 
   // 清空教學對話
   clearTutorialMessages: () => {
     set({ tutorialMessages: [] });
-    saveToStorage(STORAGE_KEYS.TUTORIAL_CONVERSATION, []);
   },
 
   // 切換到教學模式
@@ -199,20 +175,30 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     }
   },
 
-  // 初始化
+  // 初始化（現在只設置載入狀態，實際數據由 session store 提供）
   initialize: async () => {
     try {
-      const savedMessages = loadFromStorage<Message[]>(STORAGE_KEYS.CONVERSATION, []);
-      const savedTutorialMessages = loadFromStorage<Message[]>(STORAGE_KEYS.TUTORIAL_CONVERSATION, []);
-      
-      set({
-        messages: savedMessages,
-        tutorialMessages: savedTutorialMessages,
-        isLoading: false,
-      });
+      set({ isLoading: false });
     } catch (error) {
       console.error('對話初始化失敗:', error);
       set({ isLoading: false });
     }
+  },
+
+  // 新增：載入會話訊息
+  loadSessionMessages: (messages: Message[], tutorialMessages: Message[]) => {
+    set({ 
+      messages: [...messages], 
+      tutorialMessages: [...tutorialMessages] 
+    });
+  },
+
+  // 新增：取得當前會話的訊息（供 session store 儲存使用）
+  getMessagesForSession: () => {
+    const state = get();
+    return {
+      messages: state.messages,
+      tutorialMessages: state.tutorialMessages,
+    };
   },
 }));

@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   TUTORIAL_CONVERSATION: 'dear-my-friend-tutorial-conversation',
   VIEW_MODE: 'dear-my-friend-view-mode',
   TUTORIAL_COMPLETED: 'dear-my-friend-tutorial-completed',
+  SESSIONS: 'dear-my-friend-sessions',
+  CURRENT_SESSION_ID: 'dear-my-friend-current-session-id',
 } as const;
 
 // 動畫時間
@@ -31,6 +33,11 @@ export const UI_TEXT = {
   EDIT: '編輯',
   DELETE: '刪除',
   EXPORT: '匯出',
+  NEW_SESSION: '新對話',
+  RENAME_SESSION: '重新命名',
+  DELETE_SESSION: '刪除對話',
+  SESSION_LIST: '對話列表',
+  CONFIRM_DELETE_SESSION: '確定要刪除這個對話嗎？此操作無法復原。',
 } as const;
 
 // 教學相關常數

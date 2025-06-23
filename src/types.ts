@@ -76,6 +76,33 @@ export type AppState = {
   isLoading: boolean;
 };
 
+// 會話（Session）相關型別
+export type Session = {
+  id: string;
+  title: string;
+  messages: Message[];
+  tutorialMessages: Message[];
+  createdAt: number;
+  updatedAt: number;
+};
+
+// 會話管理狀態
+export type SessionState = {
+  sessions: Session[];
+  currentSessionId: string | null;
+  isLoading: boolean;
+};
+
+// 會話操作型別
+export type SessionOperations = {
+  createSession: (title?: string) => Session;
+  deleteSession: (sessionId: string) => void;
+  renameSession: (sessionId: string, newTitle: string) => void;
+  switchToSession: (sessionId: string) => void;
+  getCurrentSession: () => Session | null;
+  updateSessionMessages: (sessionId: string, messages: Message[], tutorialMessages: Message[]) => void;
+};
+
 // 保留舊有型別以維持相容性（稍後可移除）
 export type Role = MessageRole;
 export interface ChatState {

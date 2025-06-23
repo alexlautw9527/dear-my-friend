@@ -19,7 +19,7 @@ interface ViewModeState {
 }
 
 // 儲存和載入函數
-const saveToStorage = (key: string, data: any) => {
+const saveToStorage = (key: string, data: unknown) => {
   try {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
