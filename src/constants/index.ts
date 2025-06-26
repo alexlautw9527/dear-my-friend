@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   TUTORIAL_COMPLETED: 'dear-my-friend-tutorial-completed',
   SESSIONS: 'dear-my-friend-sessions',
   CURRENT_SESSION_ID: 'dear-my-friend-current-session-id',
+  MENTOR_ASSIST: 'dear-my-friend-mentor-assist',
 } as const;
 
 // 動畫時間
@@ -56,4 +57,56 @@ export const TUTORIAL = {
     MENTOR_RESPONSE_REVIEW: '查看導師回應',
     COMPLETE: '教學完成',
   },
+} as const;
+
+// 導師輔助相關常數
+export const MENTOR_ASSIST = {
+  FRAMEWORK_PROMPTS: {
+    WHAT: {
+      title: '現況釐清',
+      description: '客觀分析問題的具體情況',
+      prompts: [
+        '具體發生了什麼事？請客觀描述事實。',
+        '這個問題涉及哪些關鍵人物？他們各自的立場是什麼？',
+        '問題的核心癥結點在哪裡？',
+        '這個情況從什麼時候開始的？有什麼變化？',
+        '有哪些可以量化或具體描述的資訊？'
+      ],
+      placeholder: '試著客觀描述目前的情況...'
+    },
+    SO_WHAT: {
+      title: '意義洞察',
+      description: '深入探索問題的重要性和影響',
+      prompts: [
+        '為什麼這個問題對你來說很重要？它觸及了什麼核心價值？',
+        '如果不解決這個問題，會對你的生活或目標產生什麼影響？',
+        '這個經歷反映了你內在的什麼需求或恐懼？',
+        '回顧過去，你是否有類似的模式或經驗？',
+        '這個挑戰可能在教會你什麼重要的人生課題？'
+      ],
+      placeholder: '思考這個問題對你的深層意義...'
+    },
+    NOW_WHAT: {
+      title: '行動建議',
+      description: '制定具體可執行的行動方案',
+      prompts: [
+        '基於前面的分析，你認為最關鍵的第一步行動是什麼？',
+        '你需要哪些具體的資源、技能或人脈支持？',
+        '如何將這個複雜問題分解成可管理的小步驟？',
+        '什麼時間點開始行動最合適？如何設定里程碑？',
+        '如何建立持續追蹤進度和調整策略的機制？'
+      ],
+      placeholder: '想想具體可行的行動計畫...'
+    }
+  },
+  QUICK_PROMPTS: [
+    '我理解你現在的感受...',
+    '讓我們換個角度來看這件事。',
+    '聽起來這對你很重要。',
+    '我想先了解一下...',
+    '這確實是個值得思考的問題。',
+    '或許我們可以這樣思考：',
+    '我覺得你提到的重點是...',
+    '從你的描述中，我注意到...'
+  ]
 } as const; 
