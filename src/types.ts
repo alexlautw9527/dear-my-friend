@@ -103,6 +103,32 @@ export type SessionOperations = {
   updateSessionMessages: (sessionId: string, messages: Message[], tutorialMessages: Message[]) => void;
 };
 
+// 導師輔助相關型別
+export const MENTOR_ASSIST_FRAMEWORK = {
+  WHAT: 'what',
+  SO_WHAT: 'so_what',
+  NOW_WHAT: 'now_what',
+} as const;
+
+export type MentorAssistFramework = typeof MENTOR_ASSIST_FRAMEWORK[keyof typeof MENTOR_ASSIST_FRAMEWORK];
+
+// 導師輔助狀態
+export type MentorAssistState = {
+  isEnabled: boolean;
+  isPanelOpen: boolean;
+  currentFramework: MentorAssistFramework;
+  customPrompts: string[];
+};
+
+// 導師輔助提示內容
+export type FrameworkPrompt = {
+  framework: MentorAssistFramework;
+  title: string;
+  description: string;
+  prompts: string[];
+  placeholder: string;
+};
+
 // 保留舊有型別以維持相容性（稍後可移除）
 export type Role = MessageRole;
 export interface ChatState {

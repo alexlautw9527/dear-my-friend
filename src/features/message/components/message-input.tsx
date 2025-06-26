@@ -10,12 +10,14 @@ import { cn } from '@/lib/utils';
 interface MessageInputProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   onSendMessage: (content: string) => void;
+  onInsertText?: (insertFunction: (text: string) => void) => void;
   'data-guide'?: string;
 }
 
 const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
   ({ 
     onSendMessage,
+    onInsertText,
     disabled = false,
     placeholder = UI_TEXT.MESSAGE_PLACEHOLDER,
     className,
@@ -95,6 +97,49 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
     const handleCompositionEnd = () => {
       setIsComposing(false);
     };
+
+    // 插入文字到輸入框
+    const insertText = React.useCallback((text: string) => {
+      if (!textareaRef.current || !text) return;
+      
+      const textarea = textareaRef.current;
+      const start = textarea.selectionStart || 0;
+      const end = textarea.selectionEnd || 0;
+      const currentContent = content || '';
+      
+      // 在游標位置插入文字
+      const newContent = currentContent.slice(0, start) + text + currentContent.slice(end);
+      setContent(newContent);
+      
+      // 聚焦並設定游標位置
+      textarea.focus();
+      const newCursorPosition = start + text.length;
+      
+      // 使用 setTimeout 確保內容更新後再設定游標位置
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+          // 自動調整高度
+          textareaRef.current.style.height = 'auto';
+          const scrollHeight = textareaRef.current.scrollHeight;
+          const maxHeight = isMobile ? 120 : 200;
+          textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+        }
+      }, 0);
+    }, [content, isMobile]);
+    
+    // 移除 useImperativeHandle，直接使用 callback 方式
+    
+    // 使用 ref 來儲存最新的 insertText 函數
+    const insertTextRef = React.useRef(insertText);
+    insertTextRef.current = insertText;
+    
+    // 當 onInsertText 變化時，更新回調
+    React.useEffect(() => {
+      if (onInsertText) {
+        onInsertText((text: string) => insertTextRef.current(text));
+      }
+    }, [onInsertText]);
 
     // 防止手機鍵盤彈出時的視窗問題
     const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {

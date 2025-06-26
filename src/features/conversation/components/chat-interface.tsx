@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useCallback, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,13 +8,17 @@ import { ExportDialog } from '../';
 import { IntroductionModal } from '../../welcome';
 import { TutorialOverlay } from '../../tutorial';
 import { SessionSidebar } from '../../session';
+import { MentorAssistPanel } from '../../mentor-assist';
 import { useAppState } from '@/store/use-app-state';
 import { MESSAGE_ROLE, TUTORIAL_STEP } from '@/types';
-import { Download, HelpCircle, Trash2, GraduationCap, Menu } from 'lucide-react';
+import { Download, HelpCircle, Trash2, GraduationCap, Menu, Lightbulb } from 'lucide-react';
 
 function ChatInterface() {
   // 側邊欄狀態（手機版）
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // 訊息輸入插入文字的回調
+  const insertTextCallbackRef = React.useRef<((text: string) => void) | null>(null);
 
   // 處理 Escape 鍵關閉側邊欄
   useEffect(() => {
@@ -81,6 +86,17 @@ function ChatInterface() {
     // UI 操作
     setShowIntroductionModal,
     setShowTutorialAnalysisButton,
+    
+    // 導師輔助操作
+    togglePanel,
+    closePanel,
+    setFramework,
+    nextFramework,
+    removeCustomPrompt,
+    isMentorAssistEnabled,
+    isMentorAssistPanelOpen,
+    getCurrentFramework,
+    getCustomPrompts,
   } = useAppState();
 
   // 處理發送訊息
@@ -277,7 +293,18 @@ function ChatInterface() {
     switchToNormalMode();
   };
 
-
+  // 處理導師輔助提示選擇
+  const handlePromptSelect = (prompt: string) => {
+    // 將選中的提示插入到輸入框中
+    if (insertTextCallbackRef.current) {
+      insertTextCallbackRef.current(prompt);
+    }
+  };
+  
+  // 處理插入文字回調設置
+  const handleInsertTextCallback = React.useCallback((insertFunction: (text: string) => void) => {
+    insertTextCallbackRef.current = insertFunction;
+  }, []);
 
   // 處理清除對話
   const handleClearMessages = () => {
@@ -406,6 +433,20 @@ function ChatInterface() {
                 說明
               </Button>
               
+              {/* 導師輔助按鈕 - 僅在導師視角顯示 */}
+              {currentViewMode === 'mentor' && isMentorAssistEnabled() && (
+                <Button
+                  variant={isMentorAssistPanelOpen() ? "default" : "outline"}
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={togglePanel}
+                  disabled={countdownActive || tutorialState.isActive}
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  小幫手
+                </Button>
+              )}
+
               {/* 匯出按鈕 */}
               {messages.length > 0 && (
                 <ExportDialog>
@@ -472,6 +513,20 @@ function ChatInterface() {
                 說明
               </Button>
               
+              {/* 導師輔助按鈕 - 僅在導師視角顯示 */}
+              {currentViewMode === 'mentor' && isMentorAssistEnabled() && (
+                <Button
+                  variant={isMentorAssistPanelOpen() ? "default" : "outline"}
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={togglePanel}
+                  disabled={countdownActive || tutorialState.isActive}
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  小幫手
+                </Button>
+              )}
+
               {/* 匯出按鈕 */}
               {messages.length > 0 && (
                 <ExportDialog>
@@ -507,6 +562,7 @@ function ChatInterface() {
         {/* 訊息輸入 */}
         <MessageInput
           onSendMessage={handleSendMessage}
+          onInsertText={handleInsertTextCallback}
           disabled={
             countdownActive || 
             (tutorialState.isActive && tutorialState.currentStep !== TUTORIAL_STEP.SWITCH_GUIDE && tutorialState.currentStep !== TUTORIAL_STEP.COMPLETE)
@@ -554,6 +610,18 @@ function ChatInterface() {
           </Button>
         </div>
       )}
+      
+      {/* 導師輔助面板 */}
+      <MentorAssistPanel
+        isOpen={isMentorAssistPanelOpen()}
+        currentFramework={getCurrentFramework()}
+        customPrompts={getCustomPrompts()}
+        onClose={closePanel}
+        onSetFramework={setFramework}
+        onNextFramework={nextFramework}
+        onPromptSelect={handlePromptSelect}
+        onRemoveCustomPrompt={removeCustomPrompt}
+      />
     </div>
   );
 }

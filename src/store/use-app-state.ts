@@ -5,7 +5,8 @@ import {
   useCountdownStore, 
   useTutorialStore, 
   useUIStore,
-  useSessionStore
+  useSessionStore,
+  useMentorAssistStore
 } from './index';
 import { VIEW_MODE } from '@/types';
 import type { MessageRole } from '@/types';
@@ -165,6 +166,25 @@ export const useAppState = () => {
     setShowTutorialAnalysisButton,
   } = uiStore;
 
+  // 導師輔助相關
+  const mentorAssistStore = useMentorAssistStore();
+  const {
+    mentorAssistState,
+    enableAssist,
+    disableAssist,
+    togglePanel,
+    openPanel,
+    closePanel,
+    setFramework,
+    nextFramework,
+    addCustomPrompt,
+    removeCustomPrompt,
+    isEnabled: isMentorAssistEnabled,
+    isPanelOpen: isMentorAssistPanelOpen,
+    getCurrentFramework,
+    getCustomPrompts,
+  } = mentorAssistStore;
+
   // 初始化應用
   useEffect(() => {
     const initialize = async () => {
@@ -174,6 +194,7 @@ export const useAppState = () => {
       await conversationStore.initialize();
       viewModeStore.initialize();
       tutorialStore.initialize();
+      mentorAssistStore.initialize();
     };
     
     initialize();
@@ -275,6 +296,22 @@ export const useAppState = () => {
     // UI 操作
     setShowIntroductionModal,
     setShowTutorialAnalysisButton,
+    
+    // 導師輔助操作
+    mentorAssistState,
+    enableAssist,
+    disableAssist,
+    togglePanel,
+    openPanel,
+    closePanel,
+    setFramework,
+    nextFramework,
+    addCustomPrompt,
+    removeCustomPrompt,
+    isMentorAssistEnabled,
+    isMentorAssistPanelOpen,
+    getCurrentFramework,
+    getCustomPrompts,
     
     // 會話管理操作
     createSession,
