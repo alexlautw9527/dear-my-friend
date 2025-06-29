@@ -11,6 +11,8 @@ interface MessageInputProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   onSendMessage: (content: string) => void;
   onInsertText?: (insertFunction: (text: string) => void) => void;
+  onInputFocus?: () => void;
+  onInputBlur?: () => void;
   'data-guide'?: string;
 }
 
@@ -18,6 +20,8 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
   ({ 
     onSendMessage,
     onInsertText,
+    onInputFocus,
+    onInputBlur,
     disabled = false,
     placeholder = UI_TEXT.MESSAGE_PLACEHOLDER,
     className,
@@ -115,7 +119,7 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
       textarea.focus();
       const newCursorPosition = start + text.length;
       
-      // 使用 setTimeout 確保內容更新後再設定游標位置
+      // 使用 setTimeout 確保 React 狀態更新完成後再設定游標位置
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
@@ -149,7 +153,23 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 300);
       }
+      onInputFocus?.();
       props.onFocus?.(e);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      // 延遲處理 blur 事件，給點擊事件時間完成
+      setTimeout(() => {
+        // 檢查是否還有其他元件獲得焦點
+        const activeElement = document.activeElement;
+        const isStillFocusedOnInput = activeElement === textareaRef.current;
+        
+        if (!isStillFocusedOnInput) {
+          onInputBlur?.();
+        }
+      }, 200); // 200ms 延遲確保點擊事件完成後再處理 blur
+      
+      props.onBlur?.(e);
     };
 
     return (
@@ -175,6 +195,7 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement, MessageInputProps>(
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
             onFocus={handleFocus}
+            onBlur={handleBlur}
             placeholder={placeholder}
             disabled={disabled}
             rows={1}

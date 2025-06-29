@@ -112,13 +112,6 @@ export const MENTOR_ASSIST_FRAMEWORK = {
 
 export type MentorAssistFramework = typeof MENTOR_ASSIST_FRAMEWORK[keyof typeof MENTOR_ASSIST_FRAMEWORK];
 
-// 導師輔助狀態
-export type MentorAssistState = {
-  isEnabled: boolean;
-  isPanelOpen: boolean;
-  currentFramework: MentorAssistFramework;
-  customPrompts: string[];
-};
 
 // 導師輔助提示內容
 export type FrameworkPrompt = {

@@ -16,7 +16,7 @@
 ```
 src/features/mentor-assist/
 ├── components/
-│   ├── mentor-assist-panel.tsx     # 主輔助面板元件
+│   ├── mentor-assist-panel.tsx     # 主輔助面板元件（含 useClickOutside）
 │   ├── framework-guide.tsx         # 框架指引元件
 │   └── quick-prompts.tsx          # 快速提示元件
 ├── index.ts                       # Barrel exports
@@ -48,6 +48,8 @@ interface MentorAssistPanelProps {
 - 響應式寬度調整（桌面 320px，手機適應）
 - ESC 鍵快速關閉支援
 - 插入模式：點擊提示插入到輸入框，而非直接發送
+- **點擊外部自動關閉**：使用 `useClickOutside` Hook 實現
+- **選擇提示後自動關閉**：提升使用流暢度
 
 ### FrameworkGuide 元件
 
@@ -116,7 +118,12 @@ handlePromptSelect → 插入到輸入框 → MessageInput
 3. **提示瀏覽**：查看當前框架的引導問題
 4. **快速選擇**：從快速提示中選擇對話開場語句
 5. **自訂管理**：新增或移除個人化提示
-6. **應用**：點擊提示插入到輸入框，可編輯後發送
+6. **應用**：點擊提示插入到輸入框，可編輯後發送（面板自動關閉）
+7. **關閉方式**：
+   - 點擊關閉按鈕 (X)
+   - 按下 ESC 鍵
+   - 點擊面板外部區域
+   - 選擇任一提示後自動關閉
 
 ## 💡 使用方式
 
@@ -143,6 +150,7 @@ function ChatInterface() {
   const handlePromptSelect = (prompt: string) => {
     // 處理提示選擇邏輯
     insertTextCallback(prompt); // 插入到輸入框
+    closePanel(); // 插入後自動關閉面板
   };
 
   return (
@@ -209,7 +217,7 @@ ChatInterface
 ```
 
 ### 資料依賴關係
-- **MentorAssistPanel** ← Store 狀態
+- **MentorAssistPanel** ← Store 狀態 + useClickOutside Hook
 - **FrameworkGuide** ← 當前框架類型
 - **QuickPrompts** ← 內建提示常數
 - **自訂提示** ← Store 中的 customPrompts 陣列
@@ -217,6 +225,8 @@ ChatInterface
 ### 事件流向
 ```
 使用者點擊 → 元件事件 → Store 更新 → localStorage 同步 → UI 重渲染
+           ↓
+      選擇提示 → 插入文字 → 自動關閉面板
 ```
 
 ## 🛠️ 重要函數和介面
@@ -310,6 +320,7 @@ interface MentorAssistStoreState {
 - **FrameworkGuide**：專注於框架內容展示
 - **QuickPrompts**：處理快速提示功能
 - **MentorAssistStore**：負責狀態管理和持久化
+- **useClickOutside Hook**：專門處理點擊外部關閉邏輯
 
 ### 狀態管理模式
 - 使用 **Zustand** 進行輕量級狀態管理
@@ -321,6 +332,11 @@ interface MentorAssistStoreState {
 - **條件渲染**：基於視角和啟用狀態
 - **彈性佈局**：適應不同螢幕尺寸
 - **觸控友善**：適當的按鈕大小和間距
+
+### 使用者體驗優化
+- **自動關閉機制**：選擇提示後自動關閉面板，減少額外操作
+- **多種關閉方式**：支援按鈕、ESC 鍵、點擊外部等多種關閉方式
+- **流暢的操作流程**：最小化使用者需要的點擊次數
 
 ## ⚡ 效能考量
 
@@ -343,14 +359,15 @@ interface MentorAssistStoreState {
 - AI 智能提示建議
 - 提示使用頻率統計
 - 匯出和匯入自訂提示
-- 插入並發送的組合功能
+- ~~插入並發送的組合功能~~（已透過自動關閉面板優化流程）
 
 ### 使用者體驗
 - 更豐富的視覺回饋和動畫效果
-- 鍵盤快捷鍵支援
+- 鍵盤快捷鍵支援（除 ESC 外的更多快捷鍵）
 - 語音輸入整合
 - 主題自訂功能
 - 提示預覽功能
+- 面板位置記憶（如調整寬度）
 
 ### 技術改進
 - 提示內容的多語言支援
@@ -386,3 +403,12 @@ A: 確認 `nextFramework()` 方法正確呼叫，檢查 Store 狀態更新
 
 3. **監控狀態變化**：
    在 Store 中添加 console.log 來追蹤狀態更新
+
+## 📝 最近更新
+
+### 2025-06-27 - 使用者體驗優化
+- **新增點擊外部關閉功能**：使用 `useClickOutside` Hook 實現，提升操作便利性
+- **實作選擇後自動關閉**：選擇任一提示後面板自動關閉，減少額外操作步驟
+- **整合至 ChatInterface**：在主介面中同步處理面板關閉邏輯
+
+這些改進讓使用者在選擇提示後能更流暢地繼續編輯和發送訊息，無需手動關閉面板。

@@ -54,7 +54,7 @@ export const useAppState = () => {
   // 包裝的訊息操作，會同步更新到會話
   const sendMessage = (content: string, role: MessageRole) => {
     originalSendMessage(content, role);
-    // 操作完成後，同步更新會話
+    // 使用 setTimeout(0) 確保 Zustand 狀態更新在當前事件循環完成後再執行
     setTimeout(() => {
       const currentSession = getCurrentSession();
       if (currentSession) {
@@ -66,7 +66,6 @@ export const useAppState = () => {
 
   const editMessage = (messageId: string, newContent: string) => {
     originalEditMessage(messageId, newContent);
-    // 操作完成後，同步更新會話
     setTimeout(() => {
       const currentSession = getCurrentSession();
       if (currentSession) {
@@ -78,7 +77,6 @@ export const useAppState = () => {
 
   const deleteMessage = (messageId: string) => {
     originalDeleteMessage(messageId);
-    // 操作完成後，同步更新會話
     setTimeout(() => {
       const currentSession = getCurrentSession();
       if (currentSession) {
@@ -90,7 +88,6 @@ export const useAppState = () => {
 
   const clearMessages = () => {
     originalClearMessages();
-    // 操作完成後，同步更新會話
     setTimeout(() => {
       const currentSession = getCurrentSession();
       if (currentSession) {
@@ -102,7 +99,6 @@ export const useAppState = () => {
 
   const clearTutorialMessages = () => {
     originalClearTutorialMessages();
-    // 操作完成後，同步更新會話
     setTimeout(() => {
       const currentSession = getCurrentSession();
       if (currentSession) {
@@ -179,10 +175,16 @@ export const useAppState = () => {
     nextFramework,
     addCustomPrompt,
     removeCustomPrompt,
+    setInputFocused,
+    toggleSection,
+    recordPromptUsage,
     isEnabled: isMentorAssistEnabled,
     isPanelOpen: isMentorAssistPanelOpen,
     getCurrentFramework,
     getCustomPrompts,
+    isInputFocusedState,
+    getExpandedSections,
+    getRecentPrompts,
   } = mentorAssistStore;
 
   // 初始化應用
@@ -308,10 +310,16 @@ export const useAppState = () => {
     nextFramework,
     addCustomPrompt,
     removeCustomPrompt,
+    setInputFocused,
+    toggleSection,
+    recordPromptUsage,
     isMentorAssistEnabled,
     isMentorAssistPanelOpen,
     getCurrentFramework,
     getCustomPrompts,
+    isInputFocusedState,
+    getExpandedSections,
+    getRecentPrompts,
     
     // 會話管理操作
     createSession,

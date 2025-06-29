@@ -1,13 +1,24 @@
 import { create } from 'zustand';
-import type { MentorAssistState, MentorAssistFramework } from '@/types';
+import type { MentorAssistFramework } from '@/types';
 import { MENTOR_ASSIST_FRAMEWORK } from '@/types';
 import { STORAGE_KEYS } from '@/constants';
 
+// 導出狀態介面供其他模組使用
+export interface MentorAssistState {
+  isEnabled: boolean;
+  isPanelOpen: boolean;
+  currentFramework: MentorAssistFramework;
+  customPrompts: string[];
+  isInputFocused: boolean;        // 新增：輸入框焦點狀態
+  expandedSections: {             // 新增：各區塊展開狀態
+    frameworkGuide: boolean;
+    quickPrompts: boolean;
+  };
+  recentPrompts: string[];        // 新增：最近使用的提示（用於排序）
+}
+
 interface MentorAssistStoreState {
-  // 狀態
   mentorAssistState: MentorAssistState;
-  
-  // 操作
   enableAssist: () => void;
   disableAssist: () => void;
   togglePanel: () => void;
@@ -18,13 +29,18 @@ interface MentorAssistStoreState {
   addCustomPrompt: (prompt: string) => void;
   removeCustomPrompt: (index: number) => void;
   
-  // 檢查函數
+  setInputFocused: (focused: boolean) => void;
+  toggleSection: (section: 'frameworkGuide' | 'quickPrompts') => void;
+  recordPromptUsage: (prompt: string) => void;
+  
   isEnabled: () => boolean;
   isPanelOpen: () => boolean;
   getCurrentFramework: () => MentorAssistFramework;
   getCustomPrompts: () => string[];
+  isInputFocusedState: () => boolean;
+  getExpandedSections: () => { frameworkGuide: boolean; quickPrompts: boolean };
+  getRecentPrompts: () => string[];
   
-  // 初始化和持久化
   initialize: () => void;
   saveToStorage: () => void;
   loadFromStorage: () => void;
@@ -35,13 +51,17 @@ const initialMentorAssistState: MentorAssistState = {
   isPanelOpen: false,
   currentFramework: MENTOR_ASSIST_FRAMEWORK.WHAT,
   customPrompts: [],
+  isInputFocused: false,
+  expandedSections: {
+    frameworkGuide: true,  // 框架指引預設展開
+    quickPrompts: false,   // 快速提示預設收合
+  },
+  recentPrompts: [],
 };
 
 export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) => ({
-  // 初始狀態
   mentorAssistState: initialMentorAssistState,
 
-  // 啟用輔助功能
   enableAssist: () => {
     set((state) => ({
       mentorAssistState: {
@@ -52,7 +72,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 停用輔助功能
   disableAssist: () => {
     set((state) => ({
       mentorAssistState: {
@@ -64,7 +83,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 切換面板開關
   togglePanel: () => {
     const state = get();
     if (!state.mentorAssistState.isEnabled) return; // 未啟用時不能開啟面板
@@ -78,7 +96,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 開啟面板
   openPanel: () => {
     const state = get();
     if (!state.mentorAssistState.isEnabled) return;
@@ -92,7 +109,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 關閉面板
   closePanel: () => {
     set((state) => ({
       mentorAssistState: {
@@ -103,7 +119,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 設定當前框架
   setFramework: (framework: MentorAssistFramework) => {
     set((state) => ({
       mentorAssistState: {
@@ -114,7 +129,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 切換到下一個框架
   nextFramework: () => {
     const state = get();
     const frameworks = Object.values(MENTOR_ASSIST_FRAMEWORK);
@@ -130,7 +144,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 新增自訂提示
   addCustomPrompt: (prompt: string) => {
     if (!prompt.trim()) return;
     
@@ -143,7 +156,6 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 移除自訂提示
   removeCustomPrompt: (index: number) => {
     set((state) => ({
       mentorAssistState: {
@@ -154,27 +166,74 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     get().saveToStorage();
   },
 
-  // 檢查是否啟用
   isEnabled: () => {
     return get().mentorAssistState.isEnabled;
   },
 
-  // 檢查面板是否開啟
   isPanelOpen: () => {
     return get().mentorAssistState.isPanelOpen;
   },
 
-  // 獲取當前框架
   getCurrentFramework: () => {
     return get().mentorAssistState.currentFramework;
   },
 
-  // 獲取自訂提示
   getCustomPrompts: () => {
     return get().mentorAssistState.customPrompts;
   },
 
-  // 儲存到 localStorage
+  setInputFocused: (focused: boolean) => {
+    set((state) => ({
+      mentorAssistState: {
+        ...state.mentorAssistState,
+        isInputFocused: focused,
+      }
+    }));
+  },
+
+  toggleSection: (section: 'frameworkGuide' | 'quickPrompts') => {
+    set((state) => ({
+      mentorAssistState: {
+        ...state.mentorAssistState,
+        expandedSections: {
+          ...state.mentorAssistState.expandedSections,
+          [section]: !state.mentorAssistState.expandedSections[section],
+        }
+      }
+    }));
+    get().saveToStorage();
+  },
+
+  recordPromptUsage: (prompt: string) => {
+    set((state) => {
+      const recentPrompts = state.mentorAssistState.recentPrompts.filter(p => p !== prompt);
+      recentPrompts.unshift(prompt);
+      if (recentPrompts.length > 10) {
+        recentPrompts.pop();
+      }
+      
+      return {
+        mentorAssistState: {
+          ...state.mentorAssistState,
+          recentPrompts,
+        }
+      };
+    });
+    get().saveToStorage();
+  },
+
+  isInputFocusedState: () => {
+    return get().mentorAssistState.isInputFocused;
+  },
+
+  getExpandedSections: () => {
+    return get().mentorAssistState.expandedSections;
+  },
+
+  getRecentPrompts: () => {
+    return get().mentorAssistState.recentPrompts;
+  },
+
   saveToStorage: () => {
     const state = get();
     try {
@@ -184,32 +243,30 @@ export const useMentorAssistStore = create<MentorAssistStoreState>((set, get) =>
     }
   },
 
-  // 從 localStorage 載入
   loadFromStorage: () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.MENTOR_ASSIST);
       if (saved) {
         const parsedState = JSON.parse(saved) as MentorAssistState;
-        // 驗證資料結構
         if (parsedState && typeof parsedState === 'object') {
           set({
             mentorAssistState: {
               ...initialMentorAssistState,
               ...parsedState,
-              // 確保 customPrompts 是陣列
-              customPrompts: Array.isArray(parsedState.customPrompts) ? parsedState.customPrompts : [],
+                  customPrompts: Array.isArray(parsedState.customPrompts) ? parsedState.customPrompts : [],
+              isInputFocused: false,
+              expandedSections: parsedState.expandedSections || initialMentorAssistState.expandedSections,
+              recentPrompts: Array.isArray(parsedState.recentPrompts) ? parsedState.recentPrompts : [],
             }
           });
         }
       }
     } catch (error) {
       console.warn('Failed to load mentor assist state from localStorage:', error);
-      // 載入失敗時使用預設狀態
       set({ mentorAssistState: initialMentorAssistState });
     }
   },
 
-  // 初始化
   initialize: () => {
     get().loadFromStorage();
   },
