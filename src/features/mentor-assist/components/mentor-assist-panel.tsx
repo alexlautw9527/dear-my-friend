@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronRight, ChevronDown, X, Lightbulb, ArrowRight } from 'lucide-react';
 import { FrameworkGuide } from './framework-guide';
-import { QuickPrompts } from './quick-prompts';
+import { ProgressiveQuickPrompts } from './progressive-quick-prompts';
+import { MENTOR_ASSIST } from '@/constants';
 import { useClickOutside } from '@/hooks/use-click-outside';
 import { MENTOR_ASSIST_FRAMEWORK } from '@/types';
 import type { MentorAssistFramework } from '@/types';
@@ -35,6 +36,8 @@ export function MentorAssistPanel({
     quickPrompts: true,
     customPrompts: false,
   });
+  
+  const [quickPromptsExpanded, setQuickPromptsExpanded] = useState(false);
 
   // 使用 useClickOutside Hook 處理點擊外部關閉邏輯
   const panelRef = useClickOutside<HTMLDivElement>(onClose, isOpen);
@@ -151,7 +154,14 @@ export function MentorAssistPanel({
             </p>
             
             {expandedSections.quickPrompts && (
-              <QuickPrompts onPromptSelect={handlePromptSelect} />
+              <ProgressiveQuickPrompts
+                prompts={[...MENTOR_ASSIST.QUICK_PROMPTS]}
+                initialCount={3}
+                isExpanded={quickPromptsExpanded}
+                onToggleExpand={() => setQuickPromptsExpanded(!quickPromptsExpanded)}
+                onPromptSelect={handlePromptSelect}
+                isMobile={false}
+              />
             )}
           </Card>
 

@@ -21,7 +21,10 @@ export function ProgressiveQuickPrompts({
   const displayPrompts = isExpanded ? prompts : prompts.slice(0, initialCount);
 
   return (
-    <div className="space-y-3">
+    <div className={cn(
+      "space-y-3",
+      isMobile ? "m-3" : "m-4"
+    )}>
       <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
         <h4 className={cn(
@@ -60,8 +63,9 @@ export function ProgressiveQuickPrompts({
           className={cn(
             'flex items-center gap-1 px-2 py-1 rounded-full',
             'text-xs font-medium',
-            'text-gray-500 hover:text-green-700 hover:bg-green-50',
-            'border border-gray-200 hover:border-green-300'
+            'text-gray-500 hover:text-blue-700 hover:bg-blue-50',
+            'border border-gray-200 hover:border-blue-300',
+            'mb-4' // 增加底部 margin
           )}
         >
           {isExpanded ? (

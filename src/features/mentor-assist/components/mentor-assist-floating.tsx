@@ -66,9 +66,16 @@ export function MentorAssistFloating({
       const windowWidth = window.innerWidth;
       
       if (isMobile) {
-        // 手機版：顯示在輸入框上方
+        // 手機版定位算法：解決面板在小螢幕上被截斷的問題
+        // 使用 Math.max 確保面板既能接近輸入框，又不會超出螢幕範圍
+        const availableSpace = anchorRect.top - 16; // 輸入框上方可用空間（減去16px邊距）
+        const bottomPosition = Math.max(
+          windowHeight - anchorRect.top + 8, // 理想位置：輸入框上方8px
+          windowHeight - availableSpace + 16 // 保底位置：確保面板頂部不超出螢幕
+        );
+        
         setPosition({
-          bottom: windowHeight - anchorRect.top + 8, // 顯示在輸入框上方
+          bottom: bottomPosition,
           left: 16, // 左右各 16px 邊距
           width: windowWidth - 32, // 減去左右邊距
         });
@@ -194,7 +201,7 @@ export function MentorAssistFloating({
       className={cn(
         'fixed z-50 rounded-lg shadow-lg border border-gray-200',
         'overflow-hidden',
-        isMobile ? 'max-h-[40vh] bg-white/95 backdrop-blur-sm' : 'max-h-[400px] bg-white'
+        isMobile ? 'max-h-[50vh] bg-white/95 backdrop-blur-sm' : 'max-h-[400px] bg-white'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -246,13 +253,10 @@ export function MentorAssistFloating({
       
       <div className={cn(
         "overflow-y-auto",
-        isMobile ? "max-h-[35vh]" : "max-h-[350px]" // 手機版調整高度
+        isMobile ? "max-h-[42vh]" : "max-h-[350px]" // 手機版適中高度，確保按鈕可見
       )}>
         {/* 框架指引區域 */}
-        <div className={cn(
-          "bg-white",
-          isMobile ? "p-3" : "p-4"
-        )}>
+        <div className="bg-white">
           <CompactFrameworkGuide
             framework={currentFramework}
             isExpanded={expandedSections.frameworkGuide}
@@ -265,7 +269,9 @@ export function MentorAssistFloating({
         {/* 快速提示區域 */}
         <div className={cn(
           "bg-gray-50 border-t-2 border-gray-200",
-          isMobile ? "p-3" : "p-4"
+          // 滾動容器底部 margin：解決 overflow-y-auto 中最後元素貼底問題
+          // 手機版需要更多空間避免按鈕被虛擬鍵盤或輸入框遮擋
+          isMobile ? "mb-6" : "mb-4"
         )}>
           <ProgressiveQuickPrompts
             prompts={[...MENTOR_ASSIST.QUICK_PROMPTS]}

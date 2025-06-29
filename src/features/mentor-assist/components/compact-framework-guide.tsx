@@ -19,14 +19,17 @@ export function CompactFrameworkGuide({
   isMobile = false,
 }: CompactFrameworkGuideProps) {
   const frameworkData = getFrameworkData(framework);
-  // 預設顯示前 4 個提示，展開後顯示全部
-  const defaultCount = isMobile ? 3 : 4;
+  // 預設顯示前 3 個提示，展開後顯示全部
+  const defaultCount = 3;
   const displayPrompts = isExpanded 
     ? frameworkData.prompts 
     : frameworkData.prompts.slice(0, defaultCount);
 
   return (
-    <div className="space-y-3">
+    <div className={cn(
+      "space-y-3",
+      isMobile ? "m-3" : "m-4"
+    )}>
       {/* 框架標題和描述 */}
       <div className="pb-2 border-b border-gray-100">
         <h3 className={cn(
@@ -74,7 +77,8 @@ export function CompactFrameworkGuide({
             'flex items-center gap-1 px-2 py-1 rounded-full',
             'text-xs font-medium',
             'text-gray-500 hover:text-blue-700 hover:bg-blue-50',
-            'border border-gray-200 hover:border-blue-300'
+            'border border-gray-200 hover:border-blue-300',
+            'mb-4' // 增加底部 margin
           )}
         >
           {isExpanded ? (
