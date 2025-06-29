@@ -151,7 +151,6 @@ function MessageBubble({
       data-message-id={message.id}
     >
       <div className={cn('flex flex-col max-w-[70%]', isOwnMessage ? 'items-end' : 'items-start')}>
-        {/* 角色標籤和時間 */}
         <div className={cn('flex items-center gap-2 mb-1', isOwnMessage ? 'flex-row-reverse' : 'flex-row')}>
           <Badge variant={styling.badgeVariant}>
             {getRoleLabel(message.role)}
@@ -161,18 +160,15 @@ function MessageBubble({
           </span>
         </div>
 
-        {/* 訊息內容 */}
         <Card
           className={cn(
             'p-3 relative transition-all duration-200',
             styling.cardClasses,
             'hover:shadow-md',
             message.isEditing && 'ring-2 ring-primary',
-            // 手機版互動提示 - 更優雅的方式
             isMobile && !message.isEditing && [
               'cursor-pointer active:scale-[0.98]',
               'hover:ring-1 hover:ring-primary/20',
-              // 增加微妙的觸控回饋
               'active:ring-2 active:ring-primary/30'
             ]
           )}

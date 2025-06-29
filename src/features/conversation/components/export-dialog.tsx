@@ -24,8 +24,6 @@ function ExportDialog({ children }: ExportDialogProps) {
   const [isCopied, setIsCopied] = useState(false);
   const { exportMessages, messages, tutorialMessages, isTutorialMode } = useConversationStore();
 
-  // 使用 useMemo 確保內容在格式變更或訊息更新時重新計算
-  // 添加 messages 相關依賴確保與最新聊天界面同步
   const exportContent = useMemo(() => {
     return exportMessages(selectedFormat);
   }, [exportMessages, selectedFormat, messages, tutorialMessages, isTutorialMode]);
@@ -35,7 +33,6 @@ function ExportDialog({ children }: ExportDialogProps) {
       return;
     }
 
-    // 創建並下載檔案
     const filename = `dear-my-friend-${new Date().toISOString().split('T')[0]}.${selectedFormat === 'markdown' ? 'md' : 'txt'}`;
     const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -65,13 +62,11 @@ function ExportDialog({ children }: ExportDialogProps) {
     }
   };
 
-  // 使用 useMemo 計算預覽內容，顯示完整內容以支援滾動
   const previewContent = useMemo(() => {
     if (!exportContent) {
       return '沒有對話記錄可匯出';
     }
     
-    // 直接返回完整內容，讓使用者可以滾動查看
     return exportContent;
   }, [exportContent]);
 

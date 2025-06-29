@@ -4,10 +4,7 @@ import { TUTORIAL_STEP } from '@/types';
 import { STORAGE_KEYS, TUTORIAL } from '@/constants';
 
 interface TutorialStoreState {
-  // 狀態
   tutorialState: TutorialState;
-  
-  // 操作
   startTutorial: () => void;
   nextStep: () => void;
   skipTutorial: () => void;
@@ -16,15 +13,12 @@ interface TutorialStoreState {
   hideOverlay: () => void;
   showOverlay: () => void;
   
-  // 檢查函數
   isTutorialCompleted: () => boolean;
   shouldAutoStartTutorial: () => boolean;
   
-  // 教學內容
   getCurrentStepTitle: () => string;
   getDemoMessage: (role: 'apprentice' | 'mentor') => string;
   
-  // 初始化
   initialize: () => void;
 }
 
@@ -37,10 +31,8 @@ const initialTutorialState: TutorialState = {
 };
 
 export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
-  // 初始狀態
   tutorialState: initialTutorialState,
 
-  // 開始教學
   startTutorial: () => {
     set({
       tutorialState: {
@@ -53,7 +45,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     });
   },
 
-  // 進入下一步
   nextStep: () => {
     const state = get();
     const nextStepValue = state.tutorialState.currentStep + 1;
@@ -86,7 +77,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     }, TUTORIAL.STEP_DURATION);
   },
 
-  // 跳過教學
   skipTutorial: () => {
     set({
       tutorialState: {
@@ -97,7 +87,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     localStorage.setItem(STORAGE_KEYS.TUTORIAL_COMPLETED, 'true');
   },
 
-  // 暫停教學（不標記為已完成）
   pauseTutorial: () => {
     set({
       tutorialState: {
@@ -107,7 +96,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     });
   },
 
-  // 完成教學
   completeTutorial: () => {
     set({
       tutorialState: {
@@ -118,7 +106,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     localStorage.setItem(STORAGE_KEYS.TUTORIAL_COMPLETED, 'true');
   },
 
-  // 隱藏覆蓋層
   hideOverlay: () => {
     set({
       tutorialState: {
@@ -128,7 +115,6 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     });
   },
 
-  // 顯示覆蓋層
   showOverlay: () => {
     set({
       tutorialState: {
@@ -138,18 +124,15 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     });
   },
 
-  // 檢查是否已完成教學
   isTutorialCompleted: () => {
     return localStorage.getItem(STORAGE_KEYS.TUTORIAL_COMPLETED) === 'true';
   },
 
-  // 檢查是否應該自動開始教學
   shouldAutoStartTutorial: () => {
     const state = get();
     return !state.isTutorialCompleted();
   },
 
-  // 獲取當前步驟標題
   getCurrentStepTitle: () => {
     const state = get();
     switch (state.tutorialState.currentStep) {
@@ -172,12 +155,10 @@ export const useTutorialStore = create<TutorialStoreState>((set, get) => ({
     }
   },
 
-  // 獲取示範訊息
   getDemoMessage: (role: 'apprentice' | 'mentor') => {
     return TUTORIAL.DEMO_MESSAGES[role.toUpperCase() as 'APPRENTICE' | 'MENTOR'];
   },
 
-  // 初始化
   initialize: () => {
     const state = get();
     if (state.shouldAutoStartTutorial()) {

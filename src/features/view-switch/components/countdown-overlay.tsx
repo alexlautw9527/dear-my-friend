@@ -90,7 +90,7 @@ function CountdownOverlay({
                   stroke="currentColor"
                   strokeWidth="4"
                   fill="none"
-                  strokeDasharray={`${progress * 2.26} 226`}
+                  strokeDasharray={`${progress * 2.26} 226`} // 2.26 是圓周 226 的百分比轉換係數
                   className="text-primary transition-all duration-100"
                 />
               </svg>

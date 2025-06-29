@@ -26,7 +26,7 @@ const loadFromStorage = <T>(key: string, defaultValue: T): T => {
   }
 };
 
-// 生成唯一 ID
+// 組合時間戳 + 随機數確保 ID 唯一性，避免同時建立多個會話的衝突
 const generateId = (): string => {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 };
@@ -38,12 +38,10 @@ const generateDefaultTitle = (sessionNumber: number): string => {
 
 
 export const useSessionStore = create<SessionStoreState>((set, get) => ({
-  // 初始狀態
   sessions: [],
   currentSessionId: null,
   isLoading: true,
 
-  // 建立新會話
   createSession: (title?: string) => {
     const state = get();
     const sessionNumber = state.sessions.length + 1;
@@ -69,7 +67,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     return newSession;
   },
 
-  // 刪除會話
   deleteSession: (sessionId: string) => {
     const state = get();
     const updatedSessions = state.sessions.filter(session => session.id !== sessionId);
@@ -99,7 +96,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     saveToStorage(STORAGE_KEYS.CURRENT_SESSION_ID, newCurrentSessionId);
   },
 
-  // 重新命名會話
   renameSession: (sessionId: string, newTitle: string) => {
     const state = get();
     const updatedSessions = state.sessions.map(session =>
@@ -112,7 +108,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     saveToStorage(STORAGE_KEYS.SESSIONS, updatedSessions);
   },
 
-  // 切換到指定會話
   switchToSession: (sessionId: string) => {
     const state = get();
     const sessionExists = state.sessions.some(session => session.id === sessionId);
@@ -125,7 +120,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     }
   },
 
-  // 取得當前會話
   getCurrentSession: () => {
     const state = get();
     if (!state.currentSessionId) return null;
@@ -133,7 +127,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     return state.sessions.find(session => session.id === state.currentSessionId) || null;
   },
 
-  // 更新會話訊息
   updateSessionMessages: (sessionId: string, messages: Message[], tutorialMessages: Message[]) => {
     const state = get();
     const updatedSessions = state.sessions.map(session =>
@@ -151,7 +144,6 @@ export const useSessionStore = create<SessionStoreState>((set, get) => ({
     saveToStorage(STORAGE_KEYS.SESSIONS, updatedSessions);
   },
 
-  // 初始化
   initialize: async () => {
     try {
       const savedSessions = loadFromStorage<Session[]>(STORAGE_KEYS.SESSIONS, []);

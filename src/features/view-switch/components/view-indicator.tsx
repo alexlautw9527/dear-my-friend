@@ -42,7 +42,6 @@ function ViewIndicator({ currentViewMode, className }: ViewIndicatorProps) {
           viewInfo.bgClass
         )}
       >
-        {/* 視角圖示和標籤 */}
         <div className="flex items-center gap-2">
           {viewInfo.icon}
           <Badge variant={viewInfo.badgeVariant} className="font-medium">
@@ -50,10 +49,8 @@ function ViewIndicator({ currentViewMode, className }: ViewIndicatorProps) {
           </Badge>
         </div>
 
-        {/* 分隔線 - 在手機版隱藏 */}
         <div className="hidden sm:block w-px h-4 bg-border" />
 
-        {/* 說明文字 - 在手機版調整字體大小 */}
         <span className="text-xs sm:text-sm text-muted-foreground text-center">
           {viewInfo.description}
         </span>

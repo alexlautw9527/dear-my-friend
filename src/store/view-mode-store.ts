@@ -4,11 +4,8 @@ import { VIEW_MODE } from '@/types';
 import { STORAGE_KEYS } from '@/constants';
 
 interface ViewModeState {
-  // 狀態
   currentViewMode: ViewMode;
   isTransitioning: boolean;
-  
-  // 操作
   switchViewMode: () => void;
   resetToApprentice: () => void;
   setTransitioning: (transitioning: boolean) => void;
@@ -38,11 +35,9 @@ const loadFromStorage = <T>(key: string, defaultValue: T): T => {
 };
 
 export const useViewModeStore = create<ViewModeState>((set, get) => ({
-  // 初始狀態
   currentViewMode: VIEW_MODE.APPRENTICE,
   isTransitioning: false,
 
-  // 切換視角
   switchViewMode: () => {
     const state = get();
     const newViewMode = state.currentViewMode === VIEW_MODE.APPRENTICE ? VIEW_MODE.MENTOR : VIEW_MODE.APPRENTICE;
@@ -50,7 +45,6 @@ export const useViewModeStore = create<ViewModeState>((set, get) => ({
     saveToStorage(STORAGE_KEYS.VIEW_MODE, newViewMode);
   },
 
-  // 重置到學徒視角
   resetToApprentice: () => {
     const state = get();
     if (state.currentViewMode === VIEW_MODE.MENTOR) {
@@ -59,31 +53,26 @@ export const useViewModeStore = create<ViewModeState>((set, get) => ({
     }
   },
 
-  // 設置轉場狀態
   setTransitioning: (transitioning: boolean) => {
     set({ isTransitioning: transitioning });
   },
 
-  // 獲取目標視角
   getTargetViewMode: () => {
     const state = get();
     return state.currentViewMode === VIEW_MODE.APPRENTICE ? VIEW_MODE.MENTOR : VIEW_MODE.APPRENTICE;
   },
 
-  // 獲取當前角色標籤
   getCurrentRoleLabel: () => {
     const state = get();
     return state.currentViewMode === VIEW_MODE.APPRENTICE ? '學徒' : '導師';
   },
 
-  // 獲取目標角色標籤
   getTargetRoleLabel: () => {
     const state = get();
     const targetMode = state.getTargetViewMode();
     return targetMode === VIEW_MODE.APPRENTICE ? '學徒' : '導師';
   },
 
-  // 初始化
   initialize: () => {
     const savedViewMode = loadFromStorage<ViewMode>(STORAGE_KEYS.VIEW_MODE, VIEW_MODE.APPRENTICE);
     set({ currentViewMode: savedViewMode });
