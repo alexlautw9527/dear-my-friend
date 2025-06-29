@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronRight, ChevronDown, X, Lightbulb, ArrowRight } from 'lucide-react';
 import { FrameworkGuide } from './framework-guide';
 import { QuickPrompts } from './quick-prompts';
+import { useClickOutside } from '@/hooks/use-click-outside';
 import { MENTOR_ASSIST_FRAMEWORK } from '@/types';
 import type { MentorAssistFramework } from '@/types';
 
@@ -35,11 +36,20 @@ export function MentorAssistPanel({
     customPrompts: false,
   });
 
+  // 使用 useClickOutside Hook 處理點擊外部關閉邏輯
+  const panelRef = useClickOutside<HTMLDivElement>(onClose, isOpen);
+
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  // 處理提示選擇並自動關閉面板
+  const handlePromptSelect = (prompt: string) => {
+    onPromptSelect(prompt);
+    onClose(); // 選擇提示後自動關閉面板
   };
 
   const frameworks = [
@@ -51,7 +61,10 @@ export function MentorAssistPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-0 right-0 h-full w-80 bg-background border-l shadow-lg z-40 overflow-hidden">
+    <div 
+      ref={panelRef}
+      className="fixed top-0 right-0 h-full w-80 bg-background border-l shadow-lg z-40 overflow-hidden"
+    >
       <div className="flex flex-col h-full">
         {/* 標題欄 */}
         <div className="flex items-center justify-between p-4 border-b">
@@ -117,7 +130,7 @@ export function MentorAssistPanel({
           {/* 當前框架指引 */}
           <FrameworkGuide
             framework={currentFramework}
-            onPromptSelect={onPromptSelect}
+            onPromptSelect={handlePromptSelect}
           />
 
           {/* 快速提示 */}
@@ -138,7 +151,7 @@ export function MentorAssistPanel({
             </p>
             
             {expandedSections.quickPrompts && (
-              <QuickPrompts onPromptSelect={onPromptSelect} />
+              <QuickPrompts onPromptSelect={handlePromptSelect} />
             )}
           </Card>
 
@@ -165,7 +178,7 @@ export function MentorAssistPanel({
                         variant="ghost"
                         size="sm"
                         className="flex-1 text-left text-sm h-auto p-2 whitespace-normal"
-                        onClick={() => onPromptSelect(prompt)}
+                        onClick={() => handlePromptSelect(prompt)}
                       >
                         {prompt}
                       </Button>
